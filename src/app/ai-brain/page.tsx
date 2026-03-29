@@ -13,6 +13,14 @@ export default async function AIBrainPage() {
     take: 20,
   });
 
+  // Get market titles for trade display
+  const marketIds = Array.from(new Set(aiTrades.map(t => t.marketId)));
+  const markets = await prisma.market.findMany({
+    where: { id: { in: marketIds } },
+    select: { id: true, title: true, yesPrice: true, noPrice: true },
+  });
+  const marketMap = Object.fromEntries(markets.map(m => [m.id, m]));
+
   const aiUser = await prisma.user.findUnique({
     where: { username: "ai-trader" },
     include: {
@@ -41,6 +49,8 @@ export default async function AIBrainPage() {
       recentTrades={aiTrades.map((t) => ({
         id: t.id,
         marketId: t.marketId,
+        marketTitle: marketMap[t.marketId]?.title ?? "Unknown Market",
+        currentYesPrice: marketMap[t.marketId]?.yesPrice ?? 0.5,
         side: t.side,
         action: t.action,
         shares: t.shares,

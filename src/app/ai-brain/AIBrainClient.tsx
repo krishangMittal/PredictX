@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { Brain, Zap, Target, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, Play, BookOpen, Loader2 } from "lucide-react";
+import { Brain, Zap, Target, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, Play, BookOpen, Loader2, Copy } from "lucide-react";
 
 type Strategy = {
   id: string;
@@ -20,6 +20,8 @@ type Strategy = {
 type AITrade = {
   id: string;
   marketId: string;
+  marketTitle: string;
+  currentYesPrice: number;
   side: string;
   action: string;
   shares: number;
@@ -45,6 +47,7 @@ export function AIBrainClient({
   const [tradingLoading, setTradingLoading] = useState(false);
   const [learningLoading, setLearningLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
+  const [copyingId, setCopyingId] = useState<string | null>(null);
 
   const aiPnl = aiPortfolioValue - 10000;
   const activeStrategies = strategies.filter((s) => s.active);
@@ -63,6 +66,36 @@ export function AIBrainClient({
       setStatusMsg("AI trading cycle failed");
     }
     setTradingLoading(false);
+  }
+
+  async function copyTrade(trade: AITrade) {
+    setCopyingId(trade.id);
+    setStatusMsg("");
+    try {
+      const price = trade.side === "yes" ? trade.currentYesPrice : (1 - trade.currentYesPrice);
+      const res = await fetch("/api/trade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: "cmnc8j4200000tuchypmdmorp",
+          marketId: trade.marketId,
+          side: trade.side,
+          action: "buy",
+          shares: Math.min(trade.shares, 20),
+          price: +price.toFixed(4),
+        }),
+      });
+      if (res.ok) {
+        setStatusMsg(`Copied: ${trade.side.toUpperCase()} on ${trade.marketTitle.slice(0, 30)}...`);
+      } else {
+        const data = await res.json();
+        setStatusMsg(`Copy failed: ${data.error}`);
+      }
+      router.refresh();
+    } catch {
+      setStatusMsg("Copy trade failed");
+    }
+    setCopyingId(null);
   }
 
   async function runAILearning() {
@@ -213,18 +246,8 @@ export function AIBrainClient({
             <div className="space-y-3">
               {recentTrades.map((trade) => (
                 <div key={trade.id} className="bg-surface-light rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold uppercase ${
-                        trade.action === "buy" ? "text-accent-green" : "text-accent-red"
-                      }`}>
-                        {trade.action}
-                      </span>
-                      <span className={`text-xs ${trade.side === "yes" ? "text-accent-green" : "text-accent-red"}`}>
-                        {trade.side.toUpperCase()}
-                      </span>
-                      <span className="text-xs font-mono">{trade.shares} shares</span>
-                    </div>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-medium text-foreground truncate max-w-[70%]">{trade.marketTitle}</p>
                     <div className="flex items-center gap-2">
                       {trade.outcome === "win" && <CheckCircle className="w-3 h-3 text-accent-green" />}
                       {trade.outcome === "loss" && <AlertCircle className="w-3 h-3 text-accent-red" />}
@@ -232,8 +255,29 @@ export function AIBrainClient({
                       <span className="text-xs text-text-muted">{timeAgo(new Date(trade.createdAt))}</span>
                     </div>
                   </div>
-                  <p className="text-xs text-text-muted italic">&quot;{trade.reasoning}&quot;</p>
-                  <p className="text-xs text-purple-400 mt-1">Strategy: {trade.strategy}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-xs font-bold uppercase ${
+                      trade.action === "buy" ? "text-accent-green" : "text-accent-red"
+                    }`}>
+                      {trade.action}
+                    </span>
+                    <span className={`text-xs ${trade.side === "yes" ? "text-accent-green" : "text-accent-red"}`}>
+                      {trade.side.toUpperCase()}
+                    </span>
+                    <span className="text-xs font-mono">{trade.shares} shares @ {(trade.price * 100).toFixed(0)}¢</span>
+                  </div>
+                  <p className="text-xs text-text-muted italic mb-2">&quot;{trade.reasoning}&quot;</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-purple-400">Strategy: {trade.strategy}</p>
+                    <button
+                      onClick={() => copyTrade(trade)}
+                      disabled={copyingId === trade.id}
+                      className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-accent-green/10 text-accent-green border border-accent-green/20 hover:bg-accent-green/20 transition-all disabled:opacity-50"
+                    >
+                      {copyingId === trade.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Copy className="w-3 h-3" />}
+                      Copy Trade
+                    </button>
+                  </div>
                   {trade.pnl !== null && (
                     <p className={`text-xs font-mono mt-1 ${trade.pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
                       P&L: {trade.pnl >= 0 ? "+" : ""}{formatCurrency(trade.pnl)}
