@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil } from "@/lib/utils";
 import { SparklineChart } from "@/components/SparklineChart";
 import { usePriceStore } from "@/lib/store";
-import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3, Brain, ArrowUpDown, AlertTriangle } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Clock, BarChart3, Brain, ArrowUpDown, AlertTriangle } from "lucide-react";
 
 type Market = {
   id: string;
@@ -264,7 +264,7 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <StatCard icon={<BarChart3 className="w-4 h-4" />} label="Active Markets" value={initialMarkets.length.toString()} />
         <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Total Volume" value={`$${formatCompactNumber(initialMarkets.reduce((a, m) => a + m.volume, 0))}`} />
-        <StatCard icon={<Filter className="w-4 h-4" />} label="Categories" value={categories.length - 1 + ""} />
+        <StatCard icon={<AlertTriangle className="w-4 h-4 text-yellow-400" />} label="Expiring Soon" value={`${expiringSoon.length} markets`} />
         <StatCard icon={<Clock className="w-4 h-4" />} label="Showing" value={`${filtered.length} markets`} />
       </div>
 
