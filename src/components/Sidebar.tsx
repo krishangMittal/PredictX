@@ -14,6 +14,7 @@ import {
   Swords,
   RefreshCw,
   CheckCircle2,
+  Target,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/ai-brain", label: "AI Brain", icon: Brain },
   { href: "/comparison", label: "AI Trades", icon: Swords },
+  { href: "/strategy-98", label: "98-99 Strategy", icon: Target },
 ];
 
 export function Sidebar() {
