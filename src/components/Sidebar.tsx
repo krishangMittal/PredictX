@@ -13,6 +13,7 @@ import {
   Activity,
   Swords,
   RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
 
 const navItems = [
@@ -30,6 +31,7 @@ export function Sidebar() {
   const [aiPnl, setAiPnl] = useState<number | null>(null);
   const [aiPositions, setAiPositions] = useState<number>(0);
   const [syncing, setSyncing] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
 
   useEffect(() => {
@@ -128,6 +130,29 @@ export function Sidebar() {
           >
             <RefreshCw className={`w-3 h-3 ${syncing ? "animate-spin" : ""}`} />
             {syncing ? "Syncing..." : lastSync ? `Synced ${lastSync}` : "Sync Polymarket"}
+          </button>
+          <button
+            onClick={async () => {
+              setResolving(true);
+              try {
+                const res = await fetch("/api/market/auto-resolve", { method: "POST" });
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.resolved > 0) {
+                    setLastSync(`${data.resolved} resolved!`);
+                  } else {
+                    setLastSync("No markets to resolve");
+                  }
+                  setTimeout(() => setLastSync(null), 3000);
+                }
+              } catch { /* */ }
+              setResolving(false);
+            }}
+            disabled={resolving}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 transition-all disabled:opacity-50"
+          >
+            <CheckCircle2 className={`w-3 h-3 ${resolving ? "animate-spin" : ""}`} />
+            {resolving ? "Checking..." : "Resolve Expired"}
           </button>
           <div className="glass rounded-lg p-4">
             <p className="text-xs text-text-muted mb-1">Paper Balance</p>
