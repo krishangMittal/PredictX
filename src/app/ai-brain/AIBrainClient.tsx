@@ -249,6 +249,68 @@ export function AIBrainClient({
         );
       })()}
 
+      {/* P&L Waterfall */}
+      {positions.length > 0 && (() => {
+        const sorted = [...positions].sort((a, b) => b.pnl - a.pnl);
+        const winners = sorted.filter(p => p.pnl > 0.01);
+        const losers = sorted.filter(p => p.pnl < -0.01);
+        const maxAbs = Math.max(...sorted.map(p => Math.abs(p.pnl)), 1);
+        const topMovers = [...winners.slice(0, 5), ...losers.slice(-5)].sort((a, b) => b.pnl - a.pnl);
+
+        if (topMovers.length === 0) return null;
+        return (
+          <div className="glass rounded-xl p-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
+                <TrendingUp className="w-3.5 h-3.5 text-accent-green" />
+                P&L Waterfall - Top Movers
+              </h2>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-accent-green font-mono font-bold">
+                  {winners.length} winning
+                </span>
+                <span className="text-accent-red font-mono font-bold">
+                  {losers.length} losing
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {topMovers.map((pos) => (
+                <div key={pos.id} className="flex items-center gap-3">
+                  <div className="w-[180px] sm:w-[250px] truncate text-xs text-text-muted flex-shrink-0">
+                    {pos.marketTitle}
+                  </div>
+                  <div className="flex-1 flex items-center h-5">
+                    <div className="w-1/2 flex justify-end">
+                      {pos.pnl < 0 && (
+                        <div
+                          className="h-4 rounded-l bg-accent-red/60 transition-all"
+                          style={{ width: `${Math.min((Math.abs(pos.pnl) / maxAbs) * 100, 100)}%` }}
+                        />
+                      )}
+                    </div>
+                    <div className="w-px h-5 bg-white/20 flex-shrink-0" />
+                    <div className="w-1/2">
+                      {pos.pnl > 0 && (
+                        <div
+                          className="h-4 rounded-r bg-accent-green/60 transition-all"
+                          style={{ width: `${Math.min((Math.abs(pos.pnl) / maxAbs) * 100, 100)}%` }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className={`w-16 text-right text-xs font-mono font-bold flex-shrink-0 ${
+                    pos.pnl >= 0 ? "text-accent-green" : "text-accent-red"
+                  }`}>
+                    {pos.pnl >= 0 ? "+" : ""}{formatCurrency(pos.pnl)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Open Positions P&L */}
       {positions.length > 0 && (
         <div className="glass rounded-xl p-6 mb-8">
