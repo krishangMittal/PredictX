@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { formatCurrency, formatPrice } from "@/lib/utils";
+import { PortfolioChart } from "@/components/PortfolioChart";
 import {
   Wallet,
   TrendingUp,
@@ -94,6 +95,11 @@ export function PortfolioClient({
           value={`${allTimePnl >= 0 ? "+" : ""}${allTimePnlPercent.toFixed(1)}%`}
           color={allTimePnl >= 0 ? "text-accent-green" : "text-accent-red"}
         />
+      </div>
+
+      {/* Portfolio Chart */}
+      <div className="mb-8">
+        <PortfolioChart />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

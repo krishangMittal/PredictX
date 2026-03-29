@@ -86,6 +86,109 @@ export async function POST() {
       });
     }
 
+    // Record portfolio snapshots for all users every tick
+    try {
+      const users = await prisma.user.findMany({
+        include: { positions: { include: { market: true } } },
+      });
+      for (const user of users) {
+        const positionValue = user.positions.reduce((sum, p) => {
+          const currentPrice = p.side === "yes" ? p.market.yesPrice : p.market.noPrice;
+          return sum + currentPrice * p.shares;
+        }, 0);
+        await prisma.portfolioSnapshot.create({
+          data: {
+            userId: user.id,
+            portfolioValue: user.balance + positionValue,
+            cashBalance: user.balance,
+            positionValue,
+          },
+        });
+      }
+    } catch {
+      // Non-critical - snapshot recording failure shouldn't break simulation
+    }
+
+    // Check and fill limit orders
+    try {
+      const openOrders = await prisma.limitOrder.findMany({
+        where: { status: "open" },
+        include: { user: true, market: true },
+      });
+      for (const order of openOrders) {
+        const currentPrice = order.side === "yes" ? order.market.yesPrice : order.market.noPrice;
+        const shouldFill =
+          (order.action === "buy" && currentPrice <= order.limitPrice) ||
+          (order.action === "sell" && currentPrice >= order.limitPrice);
+
+        if (shouldFill) {
+          const total = order.shares * currentPrice;
+
+          if (order.action === "buy") {
+            if (order.user.balance < total) continue;
+            await prisma.user.update({
+              where: { id: order.userId },
+              data: { balance: { decrement: total } },
+            });
+            const existingPos = await prisma.position.findFirst({
+              where: { userId: order.userId, marketId: order.marketId, side: order.side },
+            });
+            if (existingPos) {
+              const totalShares = existingPos.shares + order.shares;
+              const newAvgPrice =
+                (existingPos.avgPrice * existingPos.shares + currentPrice * order.shares) / totalShares;
+              await prisma.position.update({
+                where: { id: existingPos.id },
+                data: { shares: totalShares, avgPrice: newAvgPrice },
+              });
+            } else {
+              await prisma.position.create({
+                data: { userId: order.userId, marketId: order.marketId, side: order.side, shares: order.shares, avgPrice: currentPrice },
+              });
+            }
+          } else {
+            const existingPos = await prisma.position.findFirst({
+              where: { userId: order.userId, marketId: order.marketId, side: order.side },
+            });
+            if (!existingPos || existingPos.shares < order.shares) continue;
+            await prisma.user.update({
+              where: { id: order.userId },
+              data: { balance: { increment: total } },
+            });
+            const newShares = existingPos.shares - order.shares;
+            if (newShares <= 0.001) {
+              await prisma.position.delete({ where: { id: existingPos.id } });
+            } else {
+              await prisma.position.update({
+                where: { id: existingPos.id },
+                data: { shares: newShares },
+              });
+            }
+          }
+
+          await prisma.trade.create({
+            data: {
+              userId: order.userId,
+              marketId: order.marketId,
+              side: order.side,
+              action: order.action,
+              type: "limit",
+              shares: order.shares,
+              price: currentPrice,
+              total,
+            },
+          });
+
+          await prisma.limitOrder.update({
+            where: { id: order.id },
+            data: { status: "filled", filledAt: new Date() },
+          });
+        }
+      }
+    } catch {
+      // Non-critical
+    }
+
     return NextResponse.json({
       success: true,
       updated: updates.length,

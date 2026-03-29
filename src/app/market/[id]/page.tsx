@@ -9,7 +9,8 @@ export default async function MarketPage({ params }: { params: { id: string } })
     where: { id: params.id },
     include: {
       priceHistory: {
-        orderBy: { timestamp: "asc" },
+        orderBy: { timestamp: "desc" },
+        take: 500,
       },
       trades: {
         orderBy: { createdAt: "desc" },
