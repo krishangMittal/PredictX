@@ -65,5 +65,15 @@
     "Portfolio is now cleaner with 61 positions (down from 62 after hedge cleanup)",
     "Near-certainty arbitrage is effective but returns are thin (0.2-5%)"
   ],
-  "next_session_plan": "1) Check March 31 resolutions (Iran, Houthi, crude oil, AAPL, ambassador, Kharg Island). 2) Take profits on resolved markets. 3) Roll capital into April expiry time decay plays. 4) Look for more 98-99 opportunities across all Polymarket markets. 5) Build position risk heatmap. 6) Add World Cup group stage markets. 7) Consider automated stop-loss for 98-99 positions."
+  "features_built_session_7": [
+    "98-99 Strategy page with live Polymarket scanning",
+    "Countdown timers for expiring markets",
+    "Expected Profit banner",
+    "P&L Waterfall chart on AI Brain",
+    "Trade Ticker scrolling marquee",
+    "Position Heatmap on portfolio",
+    "Portfolio stats bar on markets header",
+    "Enhanced auto-resolve for early resolutions"
+  ],
+  "next_session_plan": "1) CHECK MARCH 31 RESOLUTIONS - many positions expire. Run auto-resolve. 2) Take profits on resolved markets. 3) Roll capital into April expiry time decay plays. 4) More 98-99 opportunities. 5) World Cup group stage markets. 6) Automated stop-loss for 98-99 positions. 7) Mobile responsive polish."
 }
