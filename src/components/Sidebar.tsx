@@ -11,6 +11,7 @@ import {
   Trophy,
   Brain,
   Activity,
+  Swords,
 } from "lucide-react";
 
 const navItems = [
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/history", label: "History", icon: History },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/ai-brain", label: "AI Brain", icon: Brain },
+  { href: "/comparison", label: "AI vs Human", icon: Swords },
 ];
 
 export function Sidebar() {

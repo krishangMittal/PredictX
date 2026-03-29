@@ -8,51 +8,48 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  balance   Float    @default(10000)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String       @id @default(cuid())
+  username    String       @unique
+  balance     Float        @default(10000)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  limitOrders LimitOrder[]
   positions   Position[]
   trades      Trade[]
-  limitOrders LimitOrder[]
 }
 
 model Market {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    String
-  resolution  String?  // Resolution criteria
-  status      String   @default("active") // active, resolved_yes, resolved_no, cancelled
-  yesPrice    Float    @default(0.5)  // 0-1 representing cents
-  noPrice     Float    @default(0.5)
-  volume      Float    @default(0)
-  liquidity   Float    @default(100000)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  expiresAt   DateTime
-  resolvedAt  DateTime?
-
-  positions    Position[]
-  trades       Trade[]
-  priceHistory PriceHistory[]
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  category     String
+  resolution   String?
+  status       String         @default("active")
+  yesPrice     Float          @default(0.5)
+  noPrice      Float          @default(0.5)
+  volume       Float          @default(0)
+  liquidity    Float          @default(100000)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  expiresAt    DateTime
+  resolvedAt   DateTime?
   limitOrders  LimitOrder[]
+  positions    Position[]
+  priceHistory PriceHistory[]
+  trades       Trade[]
 }
 
 model Position {
-  id          String   @id @default(cuid())
-  userId      String
-  marketId    String
-  side        String   // "yes" or "no"
-  shares      Float
-  avgPrice    Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id])
-  market Market @relation(fields: [marketId], references: [id])
+  id        String   @id @default(cuid())
+  userId    String
+  marketId  String
+  side      String
+  shares    Float
+  avgPrice  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  market    Market   @relation(fields: [marketId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, marketId, side])
 }
@@ -61,16 +58,15 @@ model Trade {
   id        String   @id @default(cuid())
   userId    String
   marketId  String
-  side      String   // "yes" or "no"
-  type      String   @default("market") // market, limit
-  action    String   // "buy" or "sell"
+  side      String
+  type      String   @default("market")
+  action    String
   shares    Float
   price     Float
   total     Float
   createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id])
-  market Market @relation(fields: [marketId], references: [id])
+  market    Market   @relation(fields: [marketId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model PriceHistory {
@@ -80,8 +76,7 @@ model PriceHistory {
   noPrice   Float
   volume    Float    @default(0)
   timestamp DateTime @default(now())
-
-  market Market @relation(fields: [marketId], references: [id])
+  market    Market   @relation(fields: [marketId], references: [id])
 
   @@index([marketId, timestamp])
 }
@@ -89,7 +84,7 @@ model PriceHistory {
 model AIStrategy {
   id         String   @id @default(cuid())
   name       String
-  rule       String   // The strategy rule text
+  rule       String
   confidence Float    @default(0.5)
   winRate    Float    @default(0)
   trades     Int      @default(0)
@@ -108,7 +103,7 @@ model AITrade {
   price     Float
   reasoning String
   strategy  String
-  outcome   String?  // win, loss, pending
+  outcome   String?
   pnl       Float?
   createdAt DateTime @default(now())
 }
@@ -125,17 +120,16 @@ model PortfolioSnapshot {
 }
 
 model LimitOrder {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
   marketId   String
-  side       String   // "yes" or "no"
-  action     String   // "buy" or "sell"
+  side       String
+  action     String
   shares     Float
   limitPrice Float
-  status     String   @default("open") // open, filled, cancelled
-  createdAt  DateTime @default(now())
+  status     String    @default("open")
+  createdAt  DateTime  @default(now())
   filledAt   DateTime?
-
-  user   User   @relation(fields: [userId], references: [id])
-  market Market @relation(fields: [marketId], references: [id])
+  market     Market    @relation(fields: [marketId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
 }
