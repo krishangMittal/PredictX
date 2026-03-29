@@ -19,14 +19,22 @@ export async function POST() {
       },
     });
 
-    // Check markets that have expired or are past their end date
+    // Check markets that have expired OR have open positions (early resolution)
     const now = new Date();
+    const marketsWithPositions = await prisma.position.findMany({
+      select: { marketId: true },
+      distinct: ["marketId"],
+    });
+    const positionMarketIds = new Set(marketsWithPositions.map((p) => p.marketId));
+
     const expiredMarkets = activeMarkets.filter(
-      (m) => m.expiresAt && new Date(m.expiresAt) < now
+      (m) =>
+        (m.expiresAt && new Date(m.expiresAt) < now) ||
+        positionMarketIds.has(m.id)
     );
 
     if (expiredMarkets.length === 0) {
-      return NextResponse.json({ resolved: 0, message: "No expired markets to check" });
+      return NextResponse.json({ resolved: 0, message: "No markets to check" });
     }
 
     let resolved = 0;
