@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { Brain, Zap, Target, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Brain, Zap, Target, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, Play, BookOpen, Loader2 } from "lucide-react";
 
 type Strategy = {
   id: string;
@@ -39,22 +41,80 @@ export function AIBrainClient({
   aiBalance?: number;
   aiPortfolioValue: number;
 }) {
+  const router = useRouter();
+  const [tradingLoading, setTradingLoading] = useState(false);
+  const [learningLoading, setLearningLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
+
   const aiPnl = aiPortfolioValue - 10000;
   const activeStrategies = strategies.filter((s) => s.active);
   const winningTrades = recentTrades.filter((t) => t.outcome === "win").length;
   const totalDecided = recentTrades.filter((t) => t.outcome).length;
 
+  async function runAITrading() {
+    setTradingLoading(true);
+    setStatusMsg("");
+    try {
+      const res = await fetch("/api/ai/trade", { method: "POST" });
+      const data = await res.json();
+      setStatusMsg(`AI executed ${data.trades?.length ?? 0} trades`);
+      router.refresh();
+    } catch {
+      setStatusMsg("AI trading cycle failed");
+    }
+    setTradingLoading(false);
+  }
+
+  async function runAILearning() {
+    setLearningLoading(true);
+    setStatusMsg("");
+    try {
+      const res = await fetch("/api/ai/learn", { method: "POST" });
+      const data = await res.json();
+      setStatusMsg(`Evaluated ${data.evaluated ?? 0} trades, ${data.positions ?? 0} positions`);
+      router.refresh();
+    } catch {
+      setStatusMsg("AI learning cycle failed");
+    }
+    setLearningLoading(false);
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex items-center gap-3 mb-2">
-        <Brain className="w-8 h-8 text-purple-400" />
-        <h1 className="text-3xl font-bold">
-          AI Trading <span className="text-purple-400">Brain</span>
-        </h1>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <Brain className="w-8 h-8 text-purple-400" />
+          <h1 className="text-3xl font-bold">
+            AI Trading <span className="text-purple-400">Brain</span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={runAITrading}
+            disabled={tradingLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30 hover:bg-purple-500/25 transition-all disabled:opacity-50"
+          >
+            {tradingLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+            Run Trading
+          </button>
+          <button
+            onClick={runAILearning}
+            disabled={learningLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-accent-blue/15 text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/25 transition-all disabled:opacity-50"
+          >
+            {learningLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <BookOpen className="w-3 h-3" />}
+            Run Learning
+          </button>
+        </div>
       </div>
-      <p className="text-text-muted text-sm mb-8">
-        Watch the AI learn, adapt, and evolve its trading strategies over time
-      </p>
+      <div className="flex items-center justify-between mb-8">
+        <p className="text-text-muted text-sm">
+          Watch the AI learn, adapt, and evolve its trading strategies over time
+        </p>
+        {statusMsg && (
+          <p className="text-xs text-accent-blue">{statusMsg}</p>
+        )}
+      </div>
 
       {/* AI Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
