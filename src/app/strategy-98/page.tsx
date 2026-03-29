@@ -9,6 +9,7 @@ import {
   Zap,
   ArrowRight,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { formatCurrency, formatPrice } from "@/lib/utils";
 
@@ -59,6 +60,13 @@ export default function Strategy98Page() {
   const [autoBuying, setAutoBuying] = useState(false);
   const [threshold, setThreshold] = useState(98);
   const [betSize, setBetSize] = useState(1000);
+  const [now, setNow] = useState(() => Date.now());
+
+  // Tick every second for countdown timers
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -266,6 +274,80 @@ export default function Strategy98Page() {
           </div>
         </div>
       )}
+
+      {/* Countdown to Resolution */}
+      {(() => {
+        const expiring = markets
+          .filter((m) => m.endDate)
+          .map((m) => ({ ...m, endTs: new Date(m.endDate!).getTime() }))
+          .filter((m) => m.endTs > now)
+          .sort((a, b) => a.endTs - b.endTs)
+          .slice(0, 5);
+        if (expiring.length === 0) return null;
+        return (
+          <div className="rounded-xl bg-black/60 border border-[#00ff88]/20 overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-[#00ff88]/10 flex items-center gap-3">
+              <Clock className="w-4 h-4 text-[#00ff88]" />
+              <h2 className="text-sm font-bold uppercase tracking-widest text-[#00ff88]/70">
+                Countdown to Resolution
+              </h2>
+              <span className="ml-auto text-xs text-white/20">{expiring.length} expiring soon</span>
+            </div>
+            <div className="divide-y divide-white/5">
+              {expiring.map((m) => {
+                const diff = m.endTs - now;
+                const hours = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+                const secs = Math.floor((diff % 60000) / 1000);
+                const isUrgent = diff < 24 * 3600000; // less than 24h
+                const isCritical = diff < 6 * 3600000; // less than 6h
+                const price = m.bestPrice;
+                const shares = Math.floor(betSize / price);
+                const profit = shares * (1 - price);
+                return (
+                  <div
+                    key={m.id}
+                    className="flex items-center gap-4 px-5 py-3 hover:bg-white/[0.03] transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white/80 truncate">{m.title}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span
+                          className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                            m.bestSide === "yes"
+                              ? "bg-[#00ff88]/15 text-[#00ff88]"
+                              : "bg-[#ff4444]/15 text-[#ff4444]"
+                          }`}
+                        >
+                          {m.bestSide.toUpperCase()}
+                        </span>
+                        <span className="font-mono text-xs text-white/40">
+                          {formatPrice(price)}
+                        </span>
+                        <span className="font-mono text-xs text-[#00ff88]">
+                          +{formatCurrency(profit)} profit
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={`font-mono text-lg font-bold tabular-nums tracking-wider px-4 py-2 rounded-lg border ${
+                        isCritical
+                          ? "text-[#00ff88] bg-[#00ff88]/10 border-[#00ff88]/30 shadow-[0_0_15px_rgba(0,255,136,0.3)]"
+                          : isUrgent
+                          ? "text-[#00ff88]/80 bg-[#00ff88]/5 border-[#00ff88]/20 shadow-[0_0_8px_rgba(0,255,136,0.15)]"
+                          : "text-white/60 bg-white/5 border-white/10"
+                      }`}
+                    >
+                      {String(hours).padStart(2, "0")}:{String(mins).padStart(2, "0")}:
+                      {String(secs).padStart(2, "0")}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Active Bets */}
       {activeBets.length > 0 && (

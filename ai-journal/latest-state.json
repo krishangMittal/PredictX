@@ -1,64 +1,69 @@
 {
   "last_session": "2026-03-29",
-  "session_number": 6,
+  "session_number": 7,
   "data_source": "REAL - Polymarket Gamma API (auto-sync every 5 min)",
   "portfolio": {
-    "total_value": 10002.22,
-    "cash": 9302.43,
-    "capital_deployed": 697.57,
-    "unrealized_pnl": 2.22,
-    "positions_count": 20,
+    "total_value": 10009.89,
+    "cash": 2306.58,
+    "capital_deployed": 7703.31,
+    "unrealized_pnl": 9.89,
+    "positions_count": 61,
     "positions": [
-      {"market": "US forces enter Iran by March 31", "polymarketId": "1162940", "side": "no", "shares": 100, "avgPrice": 0.872, "strategy": "Time Decay + Longshot Bias", "edge": "2 days left, resolving soon", "status": "near_expiry"},
-      {"market": "Iranian regime fall by April 30", "polymarketId": "1507751", "side": "no", "shares": 178, "avgPrice": 0.935, "strategy": "Availability Bias Fade", "edge": "45yr regime, fear premium"},
-      {"market": "Argentina win 2026 World Cup", "polymarketId": "558938", "side": "yes", "shares": 100, "avgPrice": 0.098, "strategy": "Value Hunter", "edge": "Defending champ at 9.8%"},
-      {"market": "US-Iran ceasefire by April 15", "polymarketId": "1569627", "side": "no", "shares": 80, "avgPrice": 0.855, "strategy": "Time Decay"},
-      {"market": "Netanyahu out by April 30", "polymarketId": "1632763", "side": "no", "shares": 80, "avgPrice": 0.967, "strategy": "Favorite-Longshot Bias"},
-      {"market": "US forces enter Iran by Dec 31", "polymarketId": "1394299", "side": "yes", "shares": 50, "avgPrice": 0.775, "strategy": "Cross-Market Correlation"},
-      {"market": "AfD Berlin most seats", "polymarketId": "789953", "side": "yes", "shares": 100, "avgPrice": 0.073, "strategy": "Favorite-Longshot Bias", "edge": "Polls show ~25%, 7.3% is cheap"},
-      {"market": "Gavin Newsom 2028 Dem nomination", "polymarketId": "559652", "side": "yes", "shares": 60, "avgPrice": 0.242, "strategy": "Value Hunter", "edge": "Front-runner at fair price"},
-      {"market": "JB Pritzker 2028 President", "polymarketId": "561241", "side": "yes", "shares": 150, "avgPrice": 0.015, "strategy": "Lottery Ticket"},
-      {"market": "Atletico Madrid Champions League", "polymarketId": "566146", "side": "yes", "shares": 100, "avgPrice": 0.034, "strategy": "Value Hunter", "edge": "Top team, cheap option"},
-      {"market": "Nikki Haley 2028 President", "polymarketId": "561245", "side": "yes", "shares": 200, "avgPrice": 0.008, "strategy": "Favorite-Longshot Bias", "edge": "Moderate R with crossover appeal"},
-      {"market": "England World Cup", "side": "yes", "shares": 32, "avgPrice": 0.128, "strategy": "Auto (sim engine)"},
-      {"market": "US forces enter Iran by April 30", "side": "yes", "shares": 32, "avgPrice": 0.715, "strategy": "Auto (sim engine)"},
-      {"market": "Bernie Sanders 2028 Dem nom NO", "side": "no", "shares": 38, "avgPrice": 0.995, "strategy": "Auto (sim engine)"},
-      {"market": "Trump visit China April 30 NO", "side": "no", "shares": 38, "avgPrice": 0.974, "strategy": "Auto (sim engine)"},
-      {"market": "US-Iran ceasefire April 15 YES (hedge)", "side": "yes", "shares": 32, "avgPrice": 0.145, "strategy": "Auto (sim engine) - HEDGE"},
-      {"market": "Iran regime fall April 30 YES (hedge)", "side": "yes", "shares": 32, "avgPrice": 0.065, "strategy": "Auto (sim engine) - HEDGE"},
-      {"market": "Tom Brady 2028 R nom NO", "side": "no", "shares": 38, "avgPrice": 0.994, "strategy": "Auto (sim engine)"},
-      {"market": "Austria World Cup NO", "side": "no", "shares": 38, "avgPrice": 0.995, "strategy": "Auto (sim engine)"},
-      {"market": "Jesus Christ return NO", "side": "no", "shares": 38, "avgPrice": 0.962, "strategy": "Auto (sim engine)"}
+      {"market": "US x Iran ceasefire by March 31", "side": "no", "shares": 546, "avgPrice": 0.984, "strategy": "Time Decay", "status": "near_expiry"},
+      {"market": "Houthi strike on Israel by March 31", "side": "no", "shares": 360, "avgPrice": 0.832, "strategy": "Time Decay", "edge": "30 hrs left, 20% return"},
+      {"market": "Will Canada win the 2026 FIFA World Cup?", "side": "no", "shares": 308, "avgPrice": 0.995, "strategy": "98-99 Strategy"},
+      {"market": "Will the Iranian regime fall by April 30?", "side": "no", "shares": 316, "avgPrice": 0.935, "strategy": "Availability Bias Fade"},
+      {"market": "US forces enter Iran by March 31?", "side": "no", "shares": 243, "avgPrice": 0.873, "strategy": "Time Decay", "status": "near_expiry"},
+      {"market": "AAPL close above $230 end of March", "side": "yes", "shares": 210, "avgPrice": 0.952, "strategy": "Near-Certainty"},
+      {"market": "Crude Oil LOW $75 by end of March", "side": "no", "shares": 202, "avgPrice": 0.988, "strategy": "98-99 Strategy"},
+      {"market": "AAPL close above $310 end of March", "side": "no", "shares": 200, "avgPrice": 0.998, "strategy": "98-99 Strategy"},
+      {"market": "US ambassador expulsion by March 31", "side": "no", "shares": 201, "avgPrice": 0.991, "strategy": "Time Decay"},
+      {"market": "Argentina win 2026 World Cup", "side": "yes", "shares": 196, "avgPrice": 0.098, "strategy": "Value Hunter"},
+      {"market": "Gavin Newsom 2028 Dem nomination", "side": "yes", "shares": 234, "avgPrice": 0.242, "strategy": "Value Hunter"},
+      {"market": "Nikki Haley 2028 President", "side": "yes", "shares": 200, "avgPrice": 0.008, "strategy": "Lottery Ticket"},
+      {"market": "Jon Stewart 2028 Dem nomination", "side": "no", "shares": 153, "avgPrice": 0.978, "strategy": "Value Hunter"},
+      {"market": "US forces enter Iran by December 31", "side": "yes", "shares": 146, "avgPrice": 0.775, "strategy": "Cross-Market Correlation"},
+      {"market": "Bitcoin dip to $65k in March", "side": "yes", "shares": 77, "avgPrice": 0.964, "currentPrice": 1.00, "pnl": 2.74, "status": "WINNER"}
     ]
   },
+  "session_7_trades": {
+    "new_trades": 6,
+    "capital_deployed": 1247.44,
+    "potential_profit": 78.56,
+    "hedges_cleaned": 7,
+    "capital_freed": 598.03,
+    "prices_synced": 56
+  },
   "strategies": {
-    "active": ["Favorite-Longshot Bias", "Time Decay", "Availability Bias Fade", "Value Hunter", "Cross-Market Correlation", "Contrarian", "Lottery Ticket Portfolio"],
+    "active": ["Time Decay", "98-99 Strategy", "Near-Certainty Arbitrage", "Value Hunter", "Availability Bias Fade", "Cross-Market Correlation", "Lottery Ticket Portfolio"],
     "retired": ["Mean Reversion", "Momentum Chaser", "Conservative Hedger"],
-    "top_performer": "Time Decay (March 31 expiries crushing it)",
-    "edge": "1) Selling overpriced dramatic outcomes. 2) Buying cheap options on plausible 2028 outcomes. 3) Time decay on near-expiry markets."
+    "top_performer": "Time Decay (March 31 expiries)",
+    "new_strategy": "98-99 Strategy - buy markets at 98-99c, collect 1-2% when they resolve",
+    "edge": "1) Time decay on near-expiry markets. 2) 98-99c near-certainties. 3) Availability bias fading overpriced fear."
   },
   "metrics": {
-    "total_trades": 22,
-    "positions_open": 20,
-    "total_pnl": 2.22,
-    "capital_at_risk": 697.57,
-    "max_loss_scenario": -697,
-    "category_breakdown": {"geopolitics": 5, "politics": 5, "sports": 3, "crypto_finance": 7}
+    "total_trades": 28,
+    "positions_open": 61,
+    "total_pnl": 9.89,
+    "capital_at_risk": 7703.31,
+    "max_loss_scenario": -7703,
+    "winners": ["Bitcoin dip $65k Mar (+$2.74)", "Miami Open Sinner (+$6.62)"],
+    "category_breakdown": {"politics": 3663, "crypto": 1396, "sports": 682, "geopolitics": 528, "finance": 187}
   },
   "market_sync": {
-    "total_markets": 55,
-    "last_sync": "2026-03-29T22:28:00Z",
+    "total_markets": 62,
+    "last_sync": "2026-03-29T23:34:00Z",
     "auto_sync": true,
     "sync_interval": "5 minutes"
   },
   "insights": [
-    "Time decay is the most reliable edge - March 31 markets printing money",
-    "Fear/availability bias creates consistent selling opportunities",
-    "2028 presidential lottery tickets are asymmetric bets (tiny cost, huge potential)",
-    "Sim engine creates hedge positions - reduces risk but limits upside",
-    "Need to clean up sim engine hedges (long+short on same market)",
-    "AfD Berlin at 7.3% vs 25% poll lead is a massive mispricing",
-    "Iran cluster still 5/20 positions - improved from 4/6 but still watch"
+    "Hedge cleanup freed $598 in dead capital - always clean up sim engine hedges",
+    "98-99 strategy is low-risk steady income - deploy more into this",
+    "Houthi Mar 31 is the highest conviction trade: 20% return in 30 hours",
+    "Time decay continues to be the #1 edge",
+    "Bitcoin dip trade was the first confirmed winner at +$2.74",
+    "Portfolio is now cleaner with 61 positions (down from 62 after hedge cleanup)",
+    "Near-certainty arbitrage is effective but returns are thin (0.2-5%)"
   ],
-  "next_session_plan": "1) Check March 31 resolutions. 2) Take profits on expired markets. 3) Clean up hedged positions. 4) Add World Cup group stage markets. 5) Build position risk heatmap. 6) Consider adding crypto/macro positions for more diversification."
+  "next_session_plan": "1) Check March 31 resolutions (Iran, Houthi, crude oil, AAPL, ambassador, Kharg Island). 2) Take profits on resolved markets. 3) Roll capital into April expiry time decay plays. 4) Look for more 98-99 opportunities across all Polymarket markets. 5) Build position risk heatmap. 6) Add World Cup group stage markets. 7) Consider automated stop-loss for 98-99 positions."
 }
