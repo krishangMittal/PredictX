@@ -113,10 +113,18 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
     });
   }, [initialMarkets, search, category, sortBy]);
 
+  // Top movers - markets with biggest 24h change
+  const movers = useMemo(() => {
+    return [...initialMarkets]
+      .filter((m) => m.oneDayChange != null && Math.abs(m.oneDayChange) > 0.001)
+      .sort((a, b) => Math.abs(b.oneDayChange ?? 0) - Math.abs(a.oneDayChange ?? 0))
+      .slice(0, 6);
+  }, [initialMarkets]);
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">
           Prediction <span className="text-accent-blue">Markets</span>
         </h1>
@@ -124,6 +132,38 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
           Trade on real-world outcomes with virtual money. Start with $10,000.
         </p>
       </div>
+
+      {/* Market Movers */}
+      {movers.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+            <TrendingUp className="w-3 h-3" />
+            Top Movers (24h)
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {movers.map((m) => {
+              const change = m.oneDayChange ?? 0;
+              const isUp = change >= 0;
+              return (
+                <Link key={m.id} href={`/market/${m.id}`}>
+                  <div className="glass rounded-lg px-4 py-3 min-w-[200px] hover:border-accent-blue/30 transition-all cursor-pointer group flex-shrink-0">
+                    <p className="text-xs font-medium truncate max-w-[180px] group-hover:text-accent-blue transition-colors">
+                      {m.title}
+                    </p>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-sm font-bold font-mono">{formatPrice(m.yesPrice)}</span>
+                      <span className={`text-xs font-mono font-semibold flex items-center gap-0.5 ${isUp ? "text-accent-green" : "text-accent-red"}`}>
+                        {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        {isUp ? "+" : ""}{(change * 100).toFixed(1)}¢
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
