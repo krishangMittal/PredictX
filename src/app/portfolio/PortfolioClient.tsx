@@ -102,6 +102,54 @@ export function PortfolioClient({
         <PortfolioChart />
       </div>
 
+      {/* Position Heatmap */}
+      {positions.length > 0 && (
+        <div className="glass rounded-xl p-5 mb-6">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+            Position Heatmap
+          </h2>
+          <div className="flex flex-wrap gap-1">
+            {[...positions]
+              .sort((a, b) => b.value - a.value)
+              .map((pos) => {
+                const maxVal = Math.max(...positions.map(p => p.value));
+                const sizeScale = Math.max(Math.sqrt(pos.value / maxVal) * 80, 28);
+                const pnlPct = pos.pnlPercent;
+                const bgColor = pnlPct > 1 ? "bg-accent-green/40 border-accent-green/30" :
+                  pnlPct > 0 ? "bg-accent-green/20 border-accent-green/20" :
+                  pnlPct > -1 ? "bg-white/5 border-white/10" :
+                  pnlPct > -5 ? "bg-accent-red/20 border-accent-red/20" :
+                  "bg-accent-red/40 border-accent-red/30";
+                return (
+                  <Link key={pos.id} href={`/market/${pos.marketId}`}>
+                    <div
+                      className={`${bgColor} border rounded-md flex items-center justify-center cursor-pointer hover:brightness-125 transition-all overflow-hidden`}
+                      style={{ width: `${sizeScale}px`, height: `${sizeScale}px` }}
+                      title={`${pos.marketTitle}\n${pos.side.toUpperCase()} ${pos.shares} shares\nP&L: ${pos.pnl >= 0 ? "+" : ""}$${pos.pnl.toFixed(2)} (${pos.pnlPercent >= 0 ? "+" : ""}${pos.pnlPercent.toFixed(1)}%)`}
+                    >
+                      {sizeScale >= 50 && (
+                        <div className="text-center p-1">
+                          <p className="text-[8px] text-white/60 truncate max-w-[70px]">{pos.marketTitle.split(" ").slice(0, 3).join(" ")}</p>
+                          <p className={`text-[10px] font-mono font-bold ${pos.pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                            {pos.pnl >= 0 ? "+" : ""}{formatCurrency(pos.pnl)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-3 text-[10px] text-text-muted">
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-accent-red/40" /> Loss &gt;5%</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-accent-red/20" /> Loss</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-white/5" /> Flat</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-accent-green/20" /> Gain</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-accent-green/40" /> Gain &gt;1%</div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Positions */}
         <div className="lg:col-span-2">
