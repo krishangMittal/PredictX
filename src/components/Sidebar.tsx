@@ -12,6 +12,7 @@ import {
   Brain,
   Activity,
   Swords,
+  RefreshCw,
 } from "lucide-react";
 
 const navItems = [
@@ -26,6 +27,8 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const [balance, setBalance] = useState<number | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchBalance() {
@@ -43,6 +46,21 @@ export function Sidebar() {
     const interval = setInterval(fetchBalance, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  async function syncPolymarket() {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/polymarket/sync", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setLastSync(`${data.synced} markets`);
+        setTimeout(() => setLastSync(null), 3000);
+      }
+    } catch {
+      // silently fail
+    }
+    setSyncing(false);
+  }
 
   const formattedBalance = balance !== null
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(balance)
@@ -90,13 +108,21 @@ export function Sidebar() {
             );
           })}
         </nav>
-        <div className="p-3">
+        <div className="p-3 space-y-2">
+          <button
+            onClick={syncPolymarket}
+            disabled={syncing}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-accent-blue/10 text-accent-blue border border-accent-blue/20 hover:bg-accent-blue/20 transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3 h-3 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : lastSync ? `Synced ${lastSync}` : "Sync Polymarket"}
+          </button>
           <div className="glass rounded-lg p-4">
             <p className="text-xs text-text-muted mb-1">Paper Balance</p>
             <p className="text-xl font-bold font-mono text-accent-green">{formattedBalance}</p>
             <div className="mt-2 flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
-              <span className="text-xs text-text-muted">Simulation Active</span>
+              <div className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
+              <span className="text-xs text-text-muted">Polymarket Live</span>
             </div>
           </div>
         </div>
