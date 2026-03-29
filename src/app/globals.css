@@ -23,6 +23,13 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
   .glass {
     background: rgba(18, 18, 26, 0.8);
     backdrop-filter: blur(12px);
