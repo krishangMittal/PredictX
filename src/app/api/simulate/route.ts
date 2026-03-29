@@ -1,70 +1,54 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { runAITradingCycle, runAILearningCycle } from "@/lib/ai-engine";
-
-// Simulated news events that can affect prices
-const NEWS_TEMPLATES = [
-  { template: "Breaking: Major tech company announces AI breakthrough", categories: ["tech"], impact: 0.03 },
-  { template: "Crypto market sees surge in institutional buying", categories: ["crypto"], impact: 0.04 },
-  { template: "Federal Reserve hints at rate adjustment", categories: ["politics", "crypto"], impact: -0.02 },
-  { template: "Sports analytics model predicts upset victory", categories: ["sports"], impact: 0.03 },
-  { template: "New research paper challenges scientific consensus", categories: ["science"], impact: 0.02 },
-  { template: "Regulatory concerns emerge in tech sector", categories: ["tech"], impact: -0.03 },
-  { template: "Bitcoin whale moves $500M to exchange", categories: ["crypto"], impact: -0.04 },
-  { template: "Poll numbers shift dramatically in key race", categories: ["politics"], impact: 0.05 },
-  { template: "Record-breaking viewership for major sporting event", categories: ["sports"], impact: 0.02 },
-  { template: "Climate data shows unexpected trend reversal", categories: ["science"], impact: -0.02 },
-  { template: "Tech IPO exceeds expectations on first trading day", categories: ["tech"], impact: 0.02 },
-  { template: "Crypto exchange reports record trading volume", categories: ["crypto"], impact: 0.03 },
-];
+import { fetchPolymarkets, polymarketToLocal } from "@/lib/polymarket";
 
 export async function POST() {
   try {
-    const markets = await prisma.market.findMany({
-      where: { status: "active" },
-    });
+    // Try to sync real prices from Polymarket first
+    const updates: { id: string; yesPrice: number; noPrice: number; volume: number }[] = [];
+    let syncedFromPolymarket = false;
 
-    const updates = [];
-    let newsEvent = null;
+    try {
+      const pmMarkets = await fetchPolymarkets({ limit: 100, order: "volume1wk" });
+      const pmMap = new Map(pmMarkets.map(m => [m.id, m]));
 
-    // 10% chance of a news event each tick
-    if (Math.random() < 0.1) {
-      const event = NEWS_TEMPLATES[Math.floor(Math.random() * NEWS_TEMPLATES.length)];
-      newsEvent = {
-        headline: event.template,
-        categories: event.categories,
-        impact: event.impact,
-        timestamp: new Date().toISOString(),
-      };
+      const dbMarkets = await prisma.market.findMany({
+        where: { status: "active", polymarketId: { not: null } },
+      });
+
+      for (const dbMarket of dbMarkets) {
+        const pm = pmMap.get(dbMarket.polymarketId!);
+        if (pm) {
+          const data = polymarketToLocal(pm);
+          updates.push({
+            id: dbMarket.id,
+            yesPrice: data.yesPrice,
+            noPrice: data.noPrice,
+            volume: data.volume,
+          });
+        }
+      }
+      syncedFromPolymarket = updates.length > 0;
+    } catch {
+      // Polymarket API unavailable, fall back to local simulation
     }
 
-    for (const market of markets) {
-      const meanReversionStrength = 0.005;
-      const volatility = 0.008;
-
-      let drift = (0.5 - market.yesPrice) * meanReversionStrength;
-      const noise = (Math.random() - 0.5) * 2 * volatility;
-
-      // Apply news impact if relevant
-      if (newsEvent && newsEvent.categories.includes(market.category)) {
-        drift += newsEvent.impact * (Math.random() * 0.5 + 0.5);
+    // Fallback: simulate for non-Polymarket markets or if API failed
+    if (!syncedFromPolymarket) {
+      const markets = await prisma.market.findMany({ where: { status: "active" } });
+      for (const market of markets) {
+        const volatility = 0.008;
+        const drift = (0.5 - market.yesPrice) * 0.005;
+        const noise = (Math.random() - 0.5) * 2 * volatility;
+        const newYesPrice = Math.max(0.02, Math.min(0.98, market.yesPrice + drift + noise));
+        updates.push({
+          id: market.id,
+          yesPrice: +newYesPrice.toFixed(4),
+          noPrice: +(1 - newYesPrice).toFixed(4),
+          volume: market.volume + Math.floor(Math.random() * 2000) + 100,
+        });
       }
-
-      // Occasional trend shift
-      if (Math.random() < 0.02) {
-        drift += (Math.random() - 0.5) * 0.05;
-      }
-
-      const newYesPrice = Math.max(0.02, Math.min(0.98, market.yesPrice + drift + noise));
-      const newNoPrice = +(1 - newYesPrice).toFixed(4);
-      const tickVolume = Math.floor(Math.random() * 2000) + 100;
-
-      updates.push({
-        id: market.id,
-        yesPrice: +newYesPrice.toFixed(4),
-        noPrice: newNoPrice,
-        volume: market.volume + tickVolume,
-      });
     }
 
     for (const update of updates) {
@@ -218,7 +202,8 @@ export async function POST() {
         yesPrice: u.yesPrice,
         noPrice: u.noPrice,
       })),
-      news: newsEvent,
+      news: null,
+      syncedFromPolymarket,
       ai: aiResult,
     });
   } catch (error) {

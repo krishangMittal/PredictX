@@ -16,18 +16,30 @@ type Market = {
   yesPrice: number;
   noPrice: number;
   volume: number;
+  volume24hr?: number;
+  liquidity?: number;
+  spread?: number;
+  bestBid?: number | null;
+  bestAsk?: number | null;
+  lastTradePrice?: number | null;
+  oneDayChange?: number | null;
+  oneWeekChange?: number | null;
+  polymarketId?: string | null;
   expiresAt: string;
   priceHistory: { yesPrice: number; timestamp: string }[];
 };
 
-const categories = ["all", "tech", "crypto", "politics", "sports", "science"];
+const categories = ["all", "geopolitics", "politics", "crypto", "sports", "science", "finance", "tech"];
 
 const categoryColors: Record<string, string> = {
   tech: "bg-purple-500/20 text-purple-400",
   crypto: "bg-orange-500/20 text-orange-400",
   politics: "bg-blue-500/20 text-blue-400",
+  geopolitics: "bg-red-500/20 text-red-400",
   sports: "bg-green-500/20 text-green-400",
   science: "bg-cyan-500/20 text-cyan-400",
+  finance: "bg-yellow-500/20 text-yellow-400",
+  other: "bg-gray-500/20 text-gray-400",
 };
 
 type Signal = {
@@ -180,9 +192,12 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
     .map((p) => p.yesPrice)
     .reverse();
 
-  const change24h = pricePoints.length >= 2
-    ? yesPrice - pricePoints[0]
-    : 0;
+  // Use real Polymarket 1D change if available, else compute from history
+  const change24h = market.oneDayChange != null
+    ? market.oneDayChange
+    : pricePoints.length >= 2
+      ? yesPrice - pricePoints[0]
+      : 0;
 
   const isUp = change24h >= 0;
 
@@ -226,6 +241,11 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
             <p className={`text-xl font-bold font-mono ${flashClass}`}>
               {formatPrice(yesPrice)}
             </p>
+            {market.bestBid != null && market.bestAsk != null && (
+              <p className="text-[10px] text-text-muted font-mono mt-0.5">
+                {(market.bestBid * 100).toFixed(1)}¢ / {(market.bestAsk * 100).toFixed(1)}¢
+              </p>
+            )}
           </div>
           <div className="text-right">
             <p className={`text-sm font-mono font-semibold flex items-center gap-1 ${isUp ? "text-accent-green" : "text-accent-red"}`}>
@@ -235,11 +255,16 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
             <p className="text-xs text-text-muted mt-1">
               Vol ${formatCompactNumber(market.volume)}
             </p>
+            {market.volume24hr != null && market.volume24hr > 0 && (
+              <p className="text-[10px] text-text-muted font-mono">
+                24h ${formatCompactNumber(market.volume24hr)}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Yes/No Bar */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-3 flex gap-2">
           <div
             className="h-1.5 rounded-full bg-accent-green/40 transition-all duration-500"
             style={{ width: `${yesPrice * 100}%` }}
@@ -249,6 +274,14 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
             style={{ width: `${noPrice * 100}%` }}
           />
         </div>
+
+        {/* Polymarket badge */}
+        {market.polymarketId && (
+          <div className="mt-2 flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-accent-blue"></div>
+            <span className="text-[9px] text-text-muted uppercase tracking-wider">Polymarket Live</span>
+          </div>
+        )}
       </div>
     </Link>
   );
