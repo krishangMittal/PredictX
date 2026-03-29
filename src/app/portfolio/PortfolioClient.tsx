@@ -152,8 +152,50 @@ export function PortfolioClient({
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div>
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Category Allocation */}
+          {positions.length > 0 && (
+            <div className="glass rounded-xl p-6">
+              <h2 className="text-sm font-semibold mb-4">Category Allocation</h2>
+              <div className="space-y-3">
+                {(() => {
+                  const catMap: Record<string, number> = {};
+                  positions.forEach((p) => {
+                    catMap[p.category] = (catMap[p.category] || 0) + p.value;
+                  });
+                  const total = Object.values(catMap).reduce((a, b) => a + b, 0) || 1;
+                  return Object.entries(catMap)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([cat, val]) => {
+                      const pct = (val / total) * 100;
+                      return (
+                        <div key={cat}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="capitalize">{cat}</span>
+                            <span className="font-mono">{pct.toFixed(0)}% ({formatCurrency(val)})</span>
+                          </div>
+                          <div className="h-2 bg-surface-light rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                categoryColors[cat]?.includes("purple") ? "bg-purple-500" :
+                                categoryColors[cat]?.includes("orange") ? "bg-orange-500" :
+                                categoryColors[cat]?.includes("blue") ? "bg-blue-500" :
+                                categoryColors[cat]?.includes("green") ? "bg-green-500" :
+                                categoryColors[cat]?.includes("cyan") ? "bg-cyan-500" : "bg-gray-500"
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    });
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Trades */}
           <div className="glass rounded-xl p-6">
             <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <Clock className="w-4 h-4 text-accent-blue" />
