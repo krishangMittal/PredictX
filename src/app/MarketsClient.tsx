@@ -74,6 +74,9 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState<SortOption>("volume");
   const [signals, setSignals] = useState<Record<string, Signal>>({});
+  const [portfolioStats, setPortfolioStats] = useState<{
+    value: number; pnl: number; positions: number; trades: number;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/ai/signals")
@@ -83,6 +86,20 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
           const map: Record<string, Signal> = {};
           for (const s of data.signals) map[s.marketId] = s;
           setSignals(map);
+        }
+      })
+      .catch(() => {});
+
+    fetch("/api/comparison")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ai) {
+          setPortfolioStats({
+            value: data.ai.portfolioValue ?? 10000,
+            pnl: data.ai.pnl ?? 0,
+            positions: data.ai.positionCount ?? 0,
+            trades: data.ai.tradeCount ?? 0,
+          });
         }
       })
       .catch(() => {});
@@ -137,11 +154,37 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">
-          Prediction <span className="text-accent-blue">Markets</span>
-        </h1>
-        <p className="text-text-muted">
-          Trade on real-world outcomes with virtual money. Start with $10,000.
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold">
+            Prediction <span className="text-accent-blue">Markets</span>
+          </h1>
+          {portfolioStats && (
+            <div className="hidden sm:flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
+                <span className="text-text-muted">AI Value</span>
+                <span className="font-mono font-bold text-accent-blue">
+                  ${portfolioStats.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
+                <span className="text-text-muted">P&L</span>
+                <span className={`font-mono font-bold ${portfolioStats.pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                  {portfolioStats.pnl >= 0 ? "+" : ""}${portfolioStats.pnl.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
+                <span className="text-text-muted">Positions</span>
+                <span className="font-mono font-bold text-purple-400">{portfolioStats.positions}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
+                <span className="text-text-muted">Markets</span>
+                <span className="font-mono font-bold text-white/60">{initialMarkets.length}</span>
+              </div>
+            </div>
+          )}
+        </div>
+        <p className="text-text-muted text-sm">
+          Trade on real-world outcomes powered by Polymarket. AI places paper trades automatically.
         </p>
       </div>
 
