@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil } from "@/lib/utils";
 import { SparklineChart } from "@/components/SparklineChart";
 import { usePriceStore } from "@/lib/store";
-import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3 } from "lucide-react";
+import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3, Brain } from "lucide-react";
 
 type Market = {
   id: string;
@@ -30,9 +30,48 @@ const categoryColors: Record<string, string> = {
   science: "bg-cyan-500/20 text-cyan-400",
 };
 
+type Signal = {
+  marketId: string;
+  signal: "strong_buy" | "buy" | "hold" | "sell" | "strong_sell";
+  side: "yes" | "no";
+  confidence: number;
+  reasoning: string;
+  aiHasPosition: boolean;
+};
+
+const signalColors: Record<string, string> = {
+  strong_buy: "bg-green-500/20 text-green-400 border-green-500/30",
+  buy: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+  hold: "bg-gray-500/15 text-gray-400 border-gray-500/20",
+  sell: "bg-orange-500/15 text-orange-400 border-orange-500/20",
+  strong_sell: "bg-red-500/20 text-red-400 border-red-500/30",
+};
+
+const signalLabels: Record<string, string> = {
+  strong_buy: "STRONG BUY",
+  buy: "BUY",
+  hold: "HOLD",
+  sell: "SELL",
+  strong_sell: "STRONG SELL",
+};
+
 export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [signals, setSignals] = useState<Record<string, Signal>>({});
+
+  useEffect(() => {
+    fetch("/api/ai/signals")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.signals) {
+          const map: Record<string, Signal> = {};
+          for (const s of data.signals) map[s.marketId] = s;
+          setSignals(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     return initialMarkets.filter((m) => {
@@ -94,7 +133,7 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
       {/* Market Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((market) => (
-          <MarketCard key={market.id} market={market} />
+          <MarketCard key={market.id} market={market} signal={signals[market.id]} />
         ))}
       </div>
 
@@ -120,7 +159,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-function MarketCard({ market }: { market: Market }) {
+function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
   const livePrice = usePriceStore((s) => s.prices[market.id]);
   const prevPriceRef = useRef(market.yesPrice);
   const [flashClass, setFlashClass] = useState("");
@@ -170,6 +209,15 @@ function MarketCard({ market }: { market: Market }) {
         <div className="h-12 mb-4">
           <SparklineChart data={pricePoints} isUp={isUp} />
         </div>
+
+        {/* AI Signal Badge */}
+        {signal && signal.signal !== "hold" && (
+          <div className={`flex items-center gap-1.5 mb-3 px-2 py-1 rounded-md border text-[10px] font-bold w-fit ${signalColors[signal.signal]}`}>
+            <Brain className="w-3 h-3" />
+            {signalLabels[signal.signal]} {signal.side.toUpperCase()}
+            {signal.aiHasPosition && <span className="opacity-60">• AI in</span>}
+          </div>
+        )}
 
         {/* Price Row */}
         <div className="flex items-end justify-between">
