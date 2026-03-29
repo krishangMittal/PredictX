@@ -29,7 +29,16 @@ type Market = {
   yesPrice: number;
   noPrice: number;
   volume: number;
+  volume24hr?: number;
   liquidity: number;
+  spread?: number;
+  bestBid?: number | null;
+  bestAsk?: number | null;
+  lastTradePrice?: number | null;
+  oneDayChange?: number | null;
+  oneWeekChange?: number | null;
+  polymarketId?: string | null;
+  polymarketSlug?: string | null;
   expiresAt: string;
   resolution: string | null;
   priceHistory: { yesPrice: number; noPrice: number; volume: number; timestamp: string }[];
@@ -47,8 +56,11 @@ const categoryColors: Record<string, string> = {
   tech: "bg-purple-500/20 text-purple-400",
   crypto: "bg-orange-500/20 text-orange-400",
   politics: "bg-blue-500/20 text-blue-400",
+  geopolitics: "bg-red-500/20 text-red-400",
   sports: "bg-green-500/20 text-green-400",
   science: "bg-cyan-500/20 text-cyan-400",
+  finance: "bg-yellow-500/20 text-yellow-400",
+  other: "bg-gray-500/20 text-gray-400",
 };
 
 export function MarketDetailClient({
@@ -187,12 +199,53 @@ export function MarketDetailClient({
               <div>
                 <p className="text-xs text-text-muted flex items-center gap-1"><BarChart3 className="w-3 h-3" /> Volume</p>
                 <p className="text-lg font-mono">${formatCompactNumber(market.volume)}</p>
+                {market.volume24hr != null && market.volume24hr > 0 && (
+                  <p className="text-[10px] text-text-muted font-mono">24h: ${formatCompactNumber(market.volume24hr)}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-text-muted flex items-center gap-1"><Droplets className="w-3 h-3" /> Liquidity</p>
                 <p className="text-lg font-mono">${formatCompactNumber(market.liquidity)}</p>
               </div>
             </div>
+
+            {/* Polymarket real-time data */}
+            {market.polymarketId && (
+              <div className="mt-4 pt-3 border-t border-border-dim">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></div>
+                  <span className="text-[10px] text-text-muted uppercase tracking-wider">Polymarket Live Data</span>
+                </div>
+                <div className="grid grid-cols-4 gap-3">
+                  {market.bestBid != null && (
+                    <div>
+                      <p className="text-[10px] text-text-muted">Best Bid</p>
+                      <p className="text-sm font-mono text-accent-green">{(market.bestBid * 100).toFixed(1)}¢</p>
+                    </div>
+                  )}
+                  {market.bestAsk != null && (
+                    <div>
+                      <p className="text-[10px] text-text-muted">Best Ask</p>
+                      <p className="text-sm font-mono text-accent-red">{(market.bestAsk * 100).toFixed(1)}¢</p>
+                    </div>
+                  )}
+                  {market.spread != null && market.spread > 0 && (
+                    <div>
+                      <p className="text-[10px] text-text-muted">Spread</p>
+                      <p className="text-sm font-mono">{(market.spread * 100).toFixed(1)}¢</p>
+                    </div>
+                  )}
+                  {market.oneDayChange != null && (
+                    <div>
+                      <p className="text-[10px] text-text-muted">1D Change</p>
+                      <p className={`text-sm font-mono ${market.oneDayChange >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                        {market.oneDayChange >= 0 ? "+" : ""}{(market.oneDayChange * 100).toFixed(1)}¢
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Chart */}
