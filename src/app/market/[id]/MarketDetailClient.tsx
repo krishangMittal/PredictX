@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil, timeAgo, formatCurrency } from "@/lib/utils";
 import { PriceChart } from "@/components/PriceChart";
 import { usePriceStore } from "@/lib/store";
+import { useToastStore } from "@/components/Toast";
 import { ArrowLeft, Clock, BarChart3, TrendingUp, TrendingDown, Droplets, Minus, Plus } from "lucide-react";
 
 type Trade = {
@@ -68,6 +69,7 @@ export function MarketDetailClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [timeRange, setTimeRange] = useState<"1D" | "1W" | "ALL">("ALL");
+  const addToast = useToastStore((s) => s.addToast);
 
   // Live prices from store
   const livePrice = usePriceStore((s) => s.prices[market.id]);
@@ -118,7 +120,9 @@ export function MarketDetailClient({
       const data = await res.json();
       if (res.ok) {
         const verb = action === "buy" ? "Bought" : "Sold";
-        setMessage(`${verb} ${shares} ${side.toUpperCase()} shares at ${formatPrice(price)}!`);
+        const msg = `${verb} ${shares} ${side.toUpperCase()} shares at ${formatPrice(price)}!`;
+        setMessage(msg);
+        addToast(msg, "trade");
         router.refresh();
       } else {
         setMessage(data.error || "Trade failed");

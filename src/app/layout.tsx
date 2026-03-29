@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceSimulator } from "@/components/PriceSimulator";
 import { NewsTicker } from "@/components/NewsTicker";
+import { ToastContainer } from "@/components/Toast";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <NewsTicker />
           {children}
         </main>
+        <ToastContainer />
       </body>
     </html>
   );
