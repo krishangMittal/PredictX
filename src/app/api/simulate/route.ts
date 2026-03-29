@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { runAITradingCycle, runAILearningCycle } from "@/lib/ai-engine";
 
 // Simulated news events that can affect prices
 const NEWS_TEMPLATES = [
@@ -193,11 +194,17 @@ export async function POST() {
     let aiResult = null;
     if (Math.random() < 0.2) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-        const aiRes = await fetch(`${baseUrl}/api/ai-trade`, { method: "POST" });
-        if (aiRes.ok) {
-          aiResult = await aiRes.json();
-        }
+        const aiTrades = await runAITradingCycle();
+        aiResult = { tradesExecuted: aiTrades.length, trades: aiTrades };
+      } catch {
+        // Non-critical
+      }
+    }
+
+    // AI learning cycle (every ~10th tick)
+    if (Math.random() < 0.1) {
+      try {
+        await runAILearningCycle();
       } catch {
         // Non-critical
       }
