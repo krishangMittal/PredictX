@@ -121,6 +121,18 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
       .slice(0, 6);
   }, [initialMarkets]);
 
+  // Expiring soon - markets expiring within 3 days
+  const expiringSoon = useMemo(() => {
+    const now = Date.now();
+    return [...initialMarkets]
+      .filter((m) => {
+        const daysLeft = Math.ceil((new Date(m.expiresAt).getTime() - now) / (1000 * 60 * 60 * 24));
+        return daysLeft >= 0 && daysLeft <= 3;
+      })
+      .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime())
+      .slice(0, 6);
+  }, [initialMarkets]);
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -193,6 +205,41 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
           ))}
         </div>
       </div>
+
+      {/* Expiring Soon */}
+      {expiringSoon.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-3 h-3 text-yellow-400" />
+            Expiring Soon
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {expiringSoon.map((m) => {
+              const daysLeft = Math.ceil((new Date(m.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              return (
+                <Link key={m.id} href={`/market/${m.id}`}>
+                  <div className="glass rounded-lg px-4 py-3 min-w-[200px] hover:border-yellow-500/30 transition-all cursor-pointer group flex-shrink-0 border-yellow-500/10">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-yellow-400">
+                        {daysLeft === 0 ? "TODAY" : daysLeft === 1 ? "TOMORROW" : `${daysLeft} DAYS LEFT`}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium truncate max-w-[180px] group-hover:text-yellow-400 transition-colors">
+                      {m.title}
+                    </p>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-sm font-bold font-mono">{formatPrice(m.yesPrice)}</span>
+                      <span className="text-xs text-text-muted font-mono">
+                        NO {formatPrice(m.noPrice)}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Sort Options */}
       <div className="flex items-center gap-2 mb-4">
