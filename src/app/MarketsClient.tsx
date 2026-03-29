@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil } from "@/lib/utils";
 import { SparklineChart } from "@/components/SparklineChart";
 import { usePriceStore } from "@/lib/store";
-import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3, Brain } from "lucide-react";
+import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3, Brain, ArrowUpDown, AlertTriangle } from "lucide-react";
 
 type Market = {
   id: string;
@@ -67,9 +67,12 @@ const signalLabels: Record<string, string> = {
   strong_sell: "STRONG SELL",
 };
 
+type SortOption = "volume" | "expiry" | "change" | "price";
+
 export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [sortBy, setSortBy] = useState<SortOption>("volume");
   const [signals, setSignals] = useState<Record<string, Signal>>({});
 
   useEffect(() => {
@@ -86,12 +89,29 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
   }, []);
 
   const filtered = useMemo(() => {
-    return initialMarkets.filter((m) => {
+    const results = initialMarkets.filter((m) => {
       const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = category === "all" || m.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [initialMarkets, search, category]);
+
+    return results.sort((a, b) => {
+      switch (sortBy) {
+        case "expiry":
+          return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
+        case "change": {
+          const changeA = Math.abs(a.oneDayChange ?? 0);
+          const changeB = Math.abs(b.oneDayChange ?? 0);
+          return changeB - changeA;
+        }
+        case "price":
+          return b.yesPrice - a.yesPrice;
+        case "volume":
+        default:
+          return (b.volume24hr ?? b.volume) - (a.volume24hr ?? a.volume);
+      }
+    });
+  }, [initialMarkets, search, category, sortBy]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -132,6 +152,25 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Sort Options */}
+      <div className="flex items-center gap-2 mb-4">
+        <ArrowUpDown className="w-3.5 h-3.5 text-text-muted" />
+        <span className="text-xs text-text-muted mr-1">Sort:</span>
+        {(["volume", "expiry", "change", "price"] as SortOption[]).map((opt) => (
+          <button
+            key={opt}
+            onClick={() => setSortBy(opt)}
+            className={`px-2.5 py-1 rounded text-xs font-medium capitalize transition-all ${
+              sortBy === opt
+                ? "bg-accent-blue/15 text-accent-blue"
+                : "text-text-muted hover:text-foreground"
+            }`}
+          >
+            {opt === "change" ? "24h Change" : opt === "expiry" ? "Expiring Soon" : opt}
+          </button>
+        ))}
       </div>
 
       {/* Stats Bar */}
@@ -200,15 +239,25 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
       : 0;
 
   const isUp = change24h >= 0;
+  const daysLeft = Math.ceil((new Date(market.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const isExpiringSoon = daysLeft <= 3 && daysLeft >= 0;
 
   return (
     <Link href={`/market/${market.id}`}>
-      <div className="glass rounded-xl p-5 hover:border-accent-blue/30 transition-all duration-300 cursor-pointer group h-full">
+      <div className={`glass rounded-xl p-5 hover:border-accent-blue/30 transition-all duration-300 cursor-pointer group h-full ${isExpiringSoon ? "border-yellow-500/20" : ""}`}>
         {/* Category + Expiry */}
         <div className="flex items-center justify-between mb-3">
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${categoryColors[market.category] || "bg-gray-500/20 text-gray-400"}`}>
-            {market.category}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${categoryColors[market.category] || "bg-gray-500/20 text-gray-400"}`}>
+              {market.category}
+            </span>
+            {isExpiringSoon && (
+              <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 font-bold animate-pulse">
+                <AlertTriangle className="w-2.5 h-2.5" />
+                {daysLeft === 0 ? "TODAY" : daysLeft === 1 ? "1 DAY" : `${daysLeft} DAYS`}
+              </span>
+            )}
+          </div>
           <span className="text-xs text-text-muted flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {daysUntil(new Date(market.expiresAt))}
