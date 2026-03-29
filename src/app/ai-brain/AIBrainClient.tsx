@@ -203,6 +203,52 @@ export function AIBrainClient({
         </div>
       </div>
 
+      {/* Category Exposure */}
+      {positions.length > 0 && (() => {
+        const catExposure: Record<string, { value: number; count: number }> = {};
+        positions.forEach((p) => {
+          const cat = p.category || "other";
+          if (!catExposure[cat]) catExposure[cat] = { value: 0, count: 0 };
+          catExposure[cat].value += p.currentValue;
+          catExposure[cat].count++;
+        });
+        const totalValue = positions.reduce((s, p) => s + p.currentValue, 0);
+        const cats = Object.entries(catExposure).sort((a, b) => b[1].value - a[1].value);
+        const catBarColors: Record<string, string> = {
+          geopolitics: "bg-red-400", politics: "bg-blue-400", crypto: "bg-orange-400",
+          sports: "bg-green-400", science: "bg-cyan-400", finance: "bg-yellow-400",
+          tech: "bg-purple-400", other: "bg-gray-400",
+        };
+
+        return (
+          <div className="glass rounded-xl p-5 mb-6">
+            <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+              Category Exposure
+            </h2>
+            <div className="flex h-3 rounded-full overflow-hidden mb-3">
+              {cats.map(([cat, data]) => (
+                <div
+                  key={cat}
+                  className={`${catBarColors[cat] || "bg-gray-400"} transition-all`}
+                  style={{ width: `${totalValue > 0 ? (data.value / totalValue) * 100 : 0}%` }}
+                  title={`${cat}: ${formatCurrency(data.value)}`}
+                />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {cats.map(([cat, data]) => (
+                <div key={cat} className="flex items-center gap-1.5 text-xs">
+                  <div className={`w-2 h-2 rounded-full ${catBarColors[cat] || "bg-gray-400"}`} />
+                  <span className="text-text-muted capitalize">{cat}</span>
+                  <span className="font-mono font-semibold">{formatCurrency(data.value)}</span>
+                  <span className="text-text-muted">({data.count})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Open Positions P&L */}
       {positions.length > 0 && (
         <div className="glass rounded-xl p-6 mb-8">
