@@ -3,25 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0f;
+  --foreground: #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1f1f35 transparent;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .glass {
+    background: rgba(18, 18, 26, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(31, 31, 53, 0.5);
+  }
+  .glass-hover:hover {
+    background: rgba(26, 26, 46, 0.9);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+  }
+  .glow-red {
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.15);
   }
 }
