@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil } from "@/lib/utils";
 import { SparklineChart } from "@/components/SparklineChart";
+import { usePriceStore } from "@/lib/store";
 import { Search, Filter, TrendingUp, TrendingDown, Clock, BarChart3 } from "lucide-react";
 
 type Market = {
@@ -120,12 +121,28 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 function MarketCard({ market }: { market: Market }) {
+  const livePrice = usePriceStore((s) => s.prices[market.id]);
+  const prevPriceRef = useRef(market.yesPrice);
+  const [flashClass, setFlashClass] = useState("");
+
+  const yesPrice = livePrice?.yesPrice ?? market.yesPrice;
+  const noPrice = livePrice?.noPrice ?? market.noPrice;
+
+  useEffect(() => {
+    if (yesPrice !== prevPriceRef.current) {
+      setFlashClass(yesPrice > prevPriceRef.current ? "price-up" : "price-down");
+      prevPriceRef.current = yesPrice;
+      const t = setTimeout(() => setFlashClass(""), 600);
+      return () => clearTimeout(t);
+    }
+  }, [yesPrice]);
+
   const pricePoints = market.priceHistory
     .map((p) => p.yesPrice)
     .reverse();
 
   const change24h = pricePoints.length >= 2
-    ? pricePoints[pricePoints.length - 1] - pricePoints[0]
+    ? yesPrice - pricePoints[0]
     : 0;
 
   const isUp = change24h >= 0;
@@ -158,8 +175,8 @@ function MarketCard({ market }: { market: Market }) {
         <div className="flex items-end justify-between">
           <div>
             <p className="text-xs text-text-muted mb-1">YES Price</p>
-            <p className="text-xl font-bold font-mono">
-              {formatPrice(market.yesPrice)}
+            <p className={`text-xl font-bold font-mono ${flashClass}`}>
+              {formatPrice(yesPrice)}
             </p>
           </div>
           <div className="text-right">
@@ -176,12 +193,12 @@ function MarketCard({ market }: { market: Market }) {
         {/* Yes/No Bar */}
         <div className="mt-4 flex gap-2">
           <div
-            className="h-1.5 rounded-full bg-accent-green/40"
-            style={{ width: `${market.yesPrice * 100}%` }}
+            className="h-1.5 rounded-full bg-accent-green/40 transition-all duration-500"
+            style={{ width: `${yesPrice * 100}%` }}
           />
           <div
-            className="h-1.5 rounded-full bg-accent-red/40"
-            style={{ width: `${market.noPrice * 100}%` }}
+            className="h-1.5 rounded-full bg-accent-red/40 transition-all duration-500"
+            style={{ width: `${noPrice * 100}%` }}
           />
         </div>
       </div>
