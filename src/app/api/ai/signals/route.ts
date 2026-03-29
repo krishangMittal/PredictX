@@ -47,59 +47,67 @@ export async function GET() {
 
       const current = market.yesPrice;
       const avg = prices.reduce((s, p) => s + p, 0) / prices.length;
-      const trend = prices.length >= 5 ? prices[0] - prices[4] : 0;
-      const volatility =
-        Math.sqrt(
-          prices.slice(0, 10).reduce((s, p, i, a) => {
-            if (i === 0) return 0;
-            return s + (p - a[i - 1]) ** 2;
-          }, 0) / Math.max(prices.length - 1, 1)
-        ) || 0.01;
 
       let signal: Signal["signal"] = "hold";
       let side: "yes" | "no" = "yes";
       let confidence = 0;
       let reasoning = "";
 
-      // Value play: extreme prices on near-certain/impossible events
-      if (current > 0.85) {
+      // Use real Polymarket spread data if available
+      const spread = (market as Record<string, unknown>).spread as number | undefined;
+      const oneDayChange = (market as Record<string, unknown>).oneDayChange as number | null | undefined;
+      const oneWeekChange = (market as Record<string, unknown>).oneWeekChange as number | null | undefined;
+
+      // STRATEGY 1: Favorite-Longshot Bias
+      // Longshots (< 10¢) are systematically overpriced
+      if (current < 0.10) {
+        signal = "sell";
+        side = "no";
+        confidence = 0.7 + (0.10 - current) * 3;
+        reasoning = `Longshot at ${(current * 100).toFixed(1)}¢. Favorite-longshot bias: low-prob events are systematically overpriced. SELL YES / BUY NO.`;
+      }
+      // Near-certainties
+      else if (current > 0.90) {
         signal = "buy";
         side = "yes";
-        confidence = 0.6 + (current - 0.85) * 2;
-        reasoning = `High probability event at ${(current * 100).toFixed(0)}¢. If near-certain, ride to resolution.`;
-      } else if (current < 0.15) {
-        signal = "buy";
-        side = "no";
-        confidence = 0.6 + (0.15 - current) * 2;
-        reasoning = `Low probability event at ${(current * 100).toFixed(0)}¢. NO side likely to pay out.`;
+        confidence = 0.6 + (current - 0.90) * 3;
+        reasoning = `Near-certainty at ${(current * 100).toFixed(0)}¢. Ride to resolution for ${((1 - current) * 100).toFixed(1)}¢ profit per share.`;
       }
 
-      // Mean reversion: price far from moving average
+      // STRATEGY 2: Mean Reversion (price far from average)
       const deviation = current - avg;
-      if (Math.abs(deviation) > 0.08) {
+      if (Math.abs(deviation) > 0.08 && confidence < 0.6) {
         if (deviation > 0.08) {
-          signal = confidence > 0.5 ? signal : "sell";
-          if (confidence <= 0.5) {
-            side = "no";
-            confidence = Math.min(0.9, 0.5 + Math.abs(deviation) * 2);
-            reasoning = `Price ${(current * 100).toFixed(0)}¢ is ${(deviation * 100).toFixed(1)}¢ above average. Mean reversion expected.`;
-          }
+          signal = "sell";
+          side = "no";
+          confidence = Math.min(0.85, 0.5 + Math.abs(deviation) * 2);
+          reasoning = `Mean reversion: ${(current * 100).toFixed(0)}¢ is ${(deviation * 100).toFixed(1)}¢ above avg. Expect pullback.`;
         } else {
-          signal = confidence > 0.5 ? signal : "buy";
-          if (confidence <= 0.5) {
-            side = "yes";
-            confidence = Math.min(0.9, 0.5 + Math.abs(deviation) * 2);
-            reasoning = `Price ${(current * 100).toFixed(0)}¢ is ${(Math.abs(deviation) * 100).toFixed(1)}¢ below average. Bounce expected.`;
-          }
+          signal = "buy";
+          side = "yes";
+          confidence = Math.min(0.85, 0.5 + Math.abs(deviation) * 2);
+          reasoning = `Mean reversion: ${(current * 100).toFixed(0)}¢ is ${(Math.abs(deviation) * 100).toFixed(1)}¢ below avg. Bounce likely.`;
         }
       }
 
-      // Momentum: strong recent trend
-      if (Math.abs(trend) > 0.05 && confidence < 0.5) {
-        signal = trend > 0 ? "buy" : "sell";
-        side = trend > 0 ? "yes" : "no";
-        confidence = Math.min(0.8, 0.4 + Math.abs(trend) * 3);
-        reasoning = `Strong ${trend > 0 ? "upward" : "downward"} momentum: ${(trend * 100).toFixed(1)}¢ move recently. ${volatility > 0.03 ? "High volatility adds risk." : ""}`;
+      // STRATEGY 3: Momentum / real Polymarket price changes
+      if (oneWeekChange != null && Math.abs(oneWeekChange) > 0.05 && confidence < 0.5) {
+        signal = oneWeekChange > 0 ? "buy" : "sell";
+        side = oneWeekChange > 0 ? "yes" : "no";
+        confidence = Math.min(0.8, 0.4 + Math.abs(oneWeekChange) * 2);
+        reasoning = `Momentum: ${oneWeekChange > 0 ? "+" : ""}${(oneWeekChange * 100).toFixed(1)}¢ weekly move. Trend continuation likely.`;
+      } else if (oneDayChange != null && Math.abs(oneDayChange) > 0.03 && confidence < 0.5) {
+        signal = oneDayChange > 0 ? "buy" : "sell";
+        side = oneDayChange > 0 ? "yes" : "no";
+        confidence = Math.min(0.7, 0.4 + Math.abs(oneDayChange) * 3);
+        reasoning = `Daily momentum: ${oneDayChange > 0 ? "+" : ""}${(oneDayChange * 100).toFixed(1)}¢ today. ${spread && spread > 0.02 ? "Wide spread adds risk." : "Tight spread."}`;
+      }
+
+      // STRATEGY 4: Spread exploitation
+      if (spread && spread > 0.03 && confidence < 0.4) {
+        signal = "hold";
+        confidence = 0.3;
+        reasoning = `Wide spread (${(spread * 100).toFixed(1)}¢). Limit orders recommended to avoid slippage.`;
       }
 
       // Upgrade to strong signals
