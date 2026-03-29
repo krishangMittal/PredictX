@@ -27,23 +27,35 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const [balance, setBalance] = useState<number | null>(null);
+  const [aiPnl, setAiPnl] = useState<number | null>(null);
+  const [aiPositions, setAiPositions] = useState<number>(0);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchBalance() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/user/balance");
-        if (res.ok) {
-          const data = await res.json();
+        const [balRes, compRes] = await Promise.all([
+          fetch("/api/user/balance"),
+          fetch("/api/comparison"),
+        ]);
+        if (balRes.ok) {
+          const data = await balRes.json();
           setBalance(data.balance);
+        }
+        if (compRes.ok) {
+          const data = await compRes.json();
+          if (data.ai) {
+            setAiPnl(data.ai.pnl);
+            setAiPositions(data.ai.positionCount ?? 0);
+          }
         }
       } catch {
         // silently fail
       }
     }
-    fetchBalance();
-    const interval = setInterval(fetchBalance, 10000);
+    fetchData();
+    const interval = setInterval(fetchData, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -125,6 +137,20 @@ export function Sidebar() {
               <span className="text-xs text-text-muted">Polymarket Live</span>
             </div>
           </div>
+          {aiPnl !== null && (
+            <Link href="/ai-brain" className="block glass rounded-lg p-3 hover:border-purple-500/30 transition-all">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <Brain className="w-3 h-3 text-purple-400" />
+                  <span className="text-[10px] text-text-muted uppercase tracking-wider">AI Trader</span>
+                </div>
+                <span className="text-[10px] text-text-muted">{aiPositions} pos</span>
+              </div>
+              <p className={`text-sm font-bold font-mono ${aiPnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                {aiPnl >= 0 ? "+" : ""}{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(aiPnl)}
+              </p>
+            </Link>
+          )}
         </div>
       </aside>
 
