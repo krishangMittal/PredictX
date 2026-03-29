@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatCurrency, formatPrice, timeAgo } from "@/lib/utils";
-import { History, Filter, TrendingUp, TrendingDown } from "lucide-react";
+import { History, Filter, TrendingUp, TrendingDown, Download } from "lucide-react";
 
 type Trade = {
   id: string;
@@ -32,11 +32,34 @@ export function HistoryClient({ trades }: { trades: Trade[] }) {
 
   const totalVolume = trades.reduce((sum, t) => sum + t.total, 0);
 
+  function exportCSV() {
+    const header = "Market,Category,Action,Side,Type,Shares,Price,Total,Date\n";
+    const rows = filtered.map((t) =>
+      `"${t.marketTitle}",${t.category},${t.action},${t.side},${t.type},${t.shares},${t.price.toFixed(4)},${t.total.toFixed(2)},${new Date(t.createdAt).toISOString()}`
+    ).join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `predictx-trades-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">
-        Trade <span className="text-accent-blue">History</span>
-      </h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-3xl font-bold">
+          Trade <span className="text-accent-blue">History</span>
+        </h1>
+        <button
+          onClick={exportCSV}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-border-dim text-text-muted hover:text-foreground transition-colors"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Export CSV
+        </button>
+      </div>
       <p className="text-text-muted text-sm mb-8">All your trades in one place</p>
 
       {/* Summary Stats */}
