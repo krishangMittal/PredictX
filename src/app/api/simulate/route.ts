@@ -189,6 +189,20 @@ export async function POST() {
       // Non-critical
     }
 
+    // Trigger AI trading (every ~5th tick to avoid overtrading)
+    let aiResult = null;
+    if (Math.random() < 0.2) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        const aiRes = await fetch(`${baseUrl}/api/ai-trade`, { method: "POST" });
+        if (aiRes.ok) {
+          aiResult = await aiRes.json();
+        }
+      } catch {
+        // Non-critical
+      }
+    }
+
     return NextResponse.json({
       success: true,
       updated: updates.length,
@@ -198,6 +212,7 @@ export async function POST() {
         noPrice: u.noPrice,
       })),
       news: newsEvent,
+      ai: aiResult,
     });
   } catch (error) {
     console.error("Simulation error:", error);
