@@ -1,7 +1,22 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// Simulate price movements for all active markets
+// Simulated news events that can affect prices
+const NEWS_TEMPLATES = [
+  { template: "Breaking: Major tech company announces AI breakthrough", categories: ["tech"], impact: 0.03 },
+  { template: "Crypto market sees surge in institutional buying", categories: ["crypto"], impact: 0.04 },
+  { template: "Federal Reserve hints at rate adjustment", categories: ["politics", "crypto"], impact: -0.02 },
+  { template: "Sports analytics model predicts upset victory", categories: ["sports"], impact: 0.03 },
+  { template: "New research paper challenges scientific consensus", categories: ["science"], impact: 0.02 },
+  { template: "Regulatory concerns emerge in tech sector", categories: ["tech"], impact: -0.03 },
+  { template: "Bitcoin whale moves $500M to exchange", categories: ["crypto"], impact: -0.04 },
+  { template: "Poll numbers shift dramatically in key race", categories: ["politics"], impact: 0.05 },
+  { template: "Record-breaking viewership for major sporting event", categories: ["sports"], impact: 0.02 },
+  { template: "Climate data shows unexpected trend reversal", categories: ["science"], impact: -0.02 },
+  { template: "Tech IPO exceeds expectations on first trading day", categories: ["tech"], impact: 0.02 },
+  { template: "Crypto exchange reports record trading volume", categories: ["crypto"], impact: 0.03 },
+];
+
 export async function POST() {
   try {
     const markets = await prisma.market.findMany({
@@ -9,25 +24,38 @@ export async function POST() {
     });
 
     const updates = [];
+    let newsEvent = null;
+
+    // 10% chance of a news event each tick
+    if (Math.random() < 0.1) {
+      const event = NEWS_TEMPLATES[Math.floor(Math.random() * NEWS_TEMPLATES.length)];
+      newsEvent = {
+        headline: event.template,
+        categories: event.categories,
+        impact: event.impact,
+        timestamp: new Date().toISOString(),
+      };
+    }
 
     for (const market of markets) {
-      // Random walk with mean reversion toward 0.5
       const meanReversionStrength = 0.005;
       const volatility = 0.008;
-      const trendChance = 0.02; // 2% chance of a trend shift
 
       let drift = (0.5 - market.yesPrice) * meanReversionStrength;
+      const noise = (Math.random() - 0.5) * 2 * volatility;
 
-      // Occasional trend shift (simulates news events)
-      if (Math.random() < trendChance) {
+      // Apply news impact if relevant
+      if (newsEvent && newsEvent.categories.includes(market.category)) {
+        drift += newsEvent.impact * (Math.random() * 0.5 + 0.5);
+      }
+
+      // Occasional trend shift
+      if (Math.random() < 0.02) {
         drift += (Math.random() - 0.5) * 0.05;
       }
 
-      const noise = (Math.random() - 0.5) * 2 * volatility;
       const newYesPrice = Math.max(0.02, Math.min(0.98, market.yesPrice + drift + noise));
       const newNoPrice = +(1 - newYesPrice).toFixed(4);
-
-      // Random volume for this tick
       const tickVolume = Math.floor(Math.random() * 2000) + 100;
 
       updates.push({
@@ -38,7 +66,6 @@ export async function POST() {
       });
     }
 
-    // Batch update all markets
     for (const update of updates) {
       await prisma.market.update({
         where: { id: update.id },
@@ -49,7 +76,6 @@ export async function POST() {
         },
       });
 
-      // Record price history (every tick)
       await prisma.priceHistory.create({
         data: {
           marketId: update.id,
@@ -68,6 +94,7 @@ export async function POST() {
         yesPrice: u.yesPrice,
         noPrice: u.noPrice,
       })),
+      news: newsEvent,
     });
   } catch (error) {
     console.error("Simulation error:", error);

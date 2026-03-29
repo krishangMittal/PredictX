@@ -5,6 +5,7 @@ import { usePriceStore } from "@/lib/store";
 
 export function PriceSimulator() {
   const setPrices = usePriceStore((s) => s.setPrices);
+  const addNews = usePriceStore((s) => s.addNews);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const tickCountRef = useRef(0);
 
@@ -16,6 +17,9 @@ export function PriceSimulator() {
           const data = await res.json();
           if (data.prices) {
             setPrices(data.prices);
+          }
+          if (data.news) {
+            addNews(data.news);
           }
         }
       } catch {
@@ -51,7 +55,7 @@ export function PriceSimulator() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [setPrices]);
+  }, [setPrices, addNews]);
 
   return null;
 }

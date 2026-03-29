@@ -6,16 +6,26 @@ type PriceUpdate = {
   noPrice: number;
 };
 
-type PriceStore = {
-  prices: Record<string, { yesPrice: number; noPrice: number }>;
-  lastUpdate: number;
-  setPrices: (updates: PriceUpdate[]) => void;
-  getPrice: (marketId: string) => { yesPrice: number; noPrice: number } | undefined;
+type NewsEvent = {
+  headline: string;
+  categories: string[];
+  impact: number;
+  timestamp: string;
 };
 
-export const usePriceStore = create<PriceStore>((set, get) => ({
+type AppStore = {
+  prices: Record<string, { yesPrice: number; noPrice: number }>;
+  lastUpdate: number;
+  newsEvents: NewsEvent[];
+  setPrices: (updates: PriceUpdate[]) => void;
+  getPrice: (marketId: string) => { yesPrice: number; noPrice: number } | undefined;
+  addNews: (event: NewsEvent) => void;
+};
+
+export const usePriceStore = create<AppStore>((set, get) => ({
   prices: {},
   lastUpdate: 0,
+  newsEvents: [],
   setPrices: (updates) => {
     set((state) => {
       const newPrices = { ...state.prices };
@@ -29,4 +39,9 @@ export const usePriceStore = create<PriceStore>((set, get) => ({
     });
   },
   getPrice: (marketId) => get().prices[marketId],
+  addNews: (event) => {
+    set((state) => ({
+      newsEvents: [event, ...state.newsEvents].slice(0, 10),
+    }));
+  },
 }));
