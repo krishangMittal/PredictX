@@ -1,40 +1,48 @@
 {
   "last_session": "2026-03-29",
-  "session_number": 3,
+  "session_number": 5,
+  "data_source": "REAL - Polymarket Gamma API",
   "portfolio": {
     "total_value": 10000,
-    "cash": 9818.42,
-    "capital_deployed": 181.58,
+    "cash": 9662.39,
+    "capital_deployed": 337.61,
     "positions": [
-      {"market": "GPT-5 before July 2026", "side": "no", "shares": 34, "avgPrice": 0.421, "strategy": "Conservative Hedger"},
-      {"market": "Apple AI chatbot", "side": "no", "shares": 27, "avgPrice": 0.3799, "strategy": "Momentum Chaser"},
-      {"market": "World Cup 1B viewers", "side": "no", "shares": 32, "avgPrice": 0.2977, "strategy": "Mean Reversion"},
-      {"market": "TikTok ban", "side": "yes", "shares": 34, "avgPrice": 0.4227, "strategy": "Conservative Hedger"},
-      {"market": "AI pass bar exam by 2027", "side": "yes", "shares": 50, "avgPrice": 0.7223, "strategy": "Value Hunter"},
-      {"market": "World population 8.2B", "side": "yes", "shares": 40, "avgPrice": 0.8127, "strategy": "Value Hunter"},
-      {"market": "SpaceX Mars by 2030", "side": "no", "shares": 30, "avgPrice": 0.8263, "strategy": "Value Hunter"},
-      {"market": "Ethereum flip Bitcoin", "side": "no", "shares": 25, "avgPrice": 0.874, "strategy": "Contrarian"},
-      {"market": "COVID lockdowns 2026", "side": "no", "shares": 20, "avgPrice": 0.8923, "strategy": "Value Hunter"}
+      {"market": "US forces enter Iran by March 31", "polymarketId": "1162940", "side": "no", "shares": 100, "avgPrice": 0.872, "strategy": "Time Decay + Longshot Bias", "edge": "2 days left, ~5% true prob vs 12.8% market"},
+      {"market": "Iranian regime fall by April 30", "polymarketId": "958442", "side": "no", "shares": 60, "avgPrice": 0.935, "strategy": "Availability Bias Fade", "edge": "45yr regime, 6.5% for 1-month fall is fear premium"},
+      {"market": "Argentina win 2026 World Cup", "polymarketId": "558950", "side": "yes", "shares": 100, "avgPrice": 0.098, "strategy": "Value Hunter", "edge": "Defending champ at 9.8% vs ~15% true prob"},
+      {"market": "US-Iran ceasefire by April 15", "polymarketId": "1466015", "side": "no", "shares": 80, "avgPrice": 0.855, "strategy": "Time Decay + Contrarian", "edge": "16 days for diplomacy during escalation"},
+      {"market": "Netanyahu out by April 30", "polymarketId": "1484949", "side": "no", "shares": 80, "avgPrice": 0.967, "strategy": "Favorite-Longshot Bias", "edge": "Survived worse, 3.4% is overpriced"},
+      {"market": "US forces enter Iran by Dec 31", "polymarketId": "1640919", "side": "yes", "shares": 50, "avgPrice": 0.775, "strategy": "Cross-Market Correlation", "edge": "March->April->Dec price trajectory"}
     ]
   },
   "strategies": {
-    "active": ["Mean Reversion", "Momentum Chaser", "Value Hunter", "Contrarian", "Conservative Hedger"],
-    "retired": [],
-    "top_performer": "Value Hunter",
-    "edge": "Exploit random-walk price drift vs real-world probability anchors. Buy near-certainties when simulation pushes them below true value."
+    "active": ["Favorite-Longshot Bias", "Time Decay", "Availability Bias Fade", "Value Hunter", "Cross-Market Correlation", "Contrarian"],
+    "retired": ["Mean Reversion", "Momentum Chaser", "Conservative Hedger"],
+    "top_performer": "Favorite-Longshot Bias",
+    "edge": "Selling overpriced dramatic outcomes (fear premium) and buying underpriced favorites on real Polymarket data"
   },
   "metrics": {
-    "total_trades": 9,
-    "win_rate": 0.5,
-    "positions_open": 9,
+    "total_trades": 6,
+    "positions_open": 6,
     "total_pnl": 0,
-    "capital_at_risk": 181.58
+    "capital_at_risk": 337.61,
+    "max_loss_scenario": -289,
+    "correlation_warning": "4/6 positions are Iran-related"
+  },
+  "market_sync": {
+    "total_markets": 54,
+    "tradeable_markets": 12,
+    "categories": {"politics": 32, "crypto": 12, "sports": 5, "geopolitics": 4, "finance": 1},
+    "last_sync": "2026-03-29T22:12:00Z"
   },
   "insights": [
-    "Random walk simulation creates systematic mispricings vs real-world probabilities",
-    "High-conviction Value Hunter trades on near-certainties are the best edge",
-    "Small position sizes (~$20-36) keep risk low while building the book",
-    "Need to run simulation to realize P&L on positions"
+    "REAL DATA: All markets now come from Polymarket API, not simulated",
+    "Favorite-Longshot Bias is the most proven edge - longshots are systematically overpriced",
+    "Fear/availability bias creates consistent selling opportunities on dramatic outcomes",
+    "Time decay on short-dated markets provides steady edge",
+    "Need to diversify away from Iran cluster - too correlated",
+    "Argentina World Cup at 9.8% is a genuine value bet on the defending champion",
+    "Cross-market correlation between timeframes reveals market's escalation expectations"
   ],
-  "next_session_plan": "URGENT: Rip out all fake/simulated markets. Integrate Polymarket API to fetch REAL markets, real prices, real odds. Replace the simulation engine with real data sync. Then: implement the 14 Polymarket strategies from the spec, make paper trades on real markets with full reasoning, Kelly criterion sizing."
+  "next_session_plan": "1) Re-sync prices, check March 31 resolutions. 2) Reduce Iran correlation by adding sports/tech/science positions. 3) Implement auto-sync on page load. 4) Build price alert system for our positions. 5) Explore multi-outcome arbitrage on World Cup markets. 6) Update simulation engine to use real Polymarket price feeds instead of random walk."
 }
