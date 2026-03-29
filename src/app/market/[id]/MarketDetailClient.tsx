@@ -246,6 +246,16 @@ export function MarketDetailClient({
                     </div>
                   )}
                 </div>
+                {market.polymarketSlug && (
+                  <a
+                    href={`https://polymarket.com/event/${market.polymarketSlug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 text-[10px] text-accent-blue hover:underline"
+                  >
+                    View on Polymarket →
+                  </a>
+                )}
               </div>
             )}
           </div>
