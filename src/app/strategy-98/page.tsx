@@ -60,6 +60,7 @@ export default function Strategy98Page() {
   const [autoBuying, setAutoBuying] = useState(false);
   const [threshold, setThreshold] = useState(98);
   const [betSize, setBetSize] = useState(1000);
+  const [totalScanned, setTotalScanned] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
   // Tick every second for countdown timers
@@ -100,6 +101,7 @@ export default function Strategy98Page() {
         setMarkets(data.opportunities ?? []);
         setActiveBets(data.activeBets ?? []);
         setStats(data.stats ?? null);
+        setTotalScanned(data.totalScanned ?? 0);
       }
     } catch {
       // silently fail
@@ -154,6 +156,11 @@ export default function Strategy98Page() {
             </h1>
             <p className="text-white/30 text-sm mt-0.5">
               Buy near-certainties at 98-99c. Collect the last 1-2 cents. Repeat.
+              {totalScanned > 0 && (
+                <span className="ml-2 text-[#00ff88]/50 font-mono text-xs">
+                  [{totalScanned.toLocaleString()} markets scanned]
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -274,6 +281,38 @@ export default function Strategy98Page() {
           </div>
         </div>
       )}
+
+      {/* Expected Profit Banner */}
+      {activeBets.length > 0 && (() => {
+        const expectedProfit = activeBets.reduce((sum, b) => sum + (b.shares * (1 - b.entryPrice)), 0);
+        const totalInvested = activeBets.reduce((sum, b) => sum + b.invested, 0);
+        const expectedReturn = totalInvested > 0 ? (expectedProfit / totalInvested) * 100 : 0;
+        return (
+          <div className="rounded-xl p-5 mb-6 bg-gradient-to-r from-[#00ff88]/10 via-[#00ff88]/5 to-transparent border border-[#00ff88]/30 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(0,255,136,0.08),transparent_70%)]" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="text-xs text-[#00ff88]/60 uppercase tracking-widest mb-1">Expected Profit When All Resolve</p>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold font-mono text-[#00ff88]">
+                    +{formatCurrency(expectedProfit)}
+                  </span>
+                  <span className="text-sm font-mono text-[#00ff88]/60">
+                    ({expectedReturn.toFixed(1)}% return on {formatCurrency(totalInvested)})
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-white/30 mb-1">{activeBets.length} active bets</p>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#00ff88] animate-pulse" />
+                  <span className="text-xs text-[#00ff88]/80 font-mono">PRINTING</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Countdown to Resolution */}
       {(() => {

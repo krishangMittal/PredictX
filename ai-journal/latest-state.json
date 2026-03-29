@@ -4,10 +4,10 @@
   "data_source": "REAL - Polymarket Gamma API (auto-sync every 5 min)",
   "portfolio": {
     "total_value": 10009.89,
-    "cash": 2306.58,
-    "capital_deployed": 7703.31,
+    "cash": 1607.62,
+    "capital_deployed": 8402.27,
     "unrealized_pnl": 9.89,
-    "positions_count": 61,
+    "positions_count": 66,
     "positions": [
       {"market": "US x Iran ceasefire by March 31", "side": "no", "shares": 546, "avgPrice": 0.984, "strategy": "Time Decay", "status": "near_expiry"},
       {"market": "Houthi strike on Israel by March 31", "side": "no", "shares": 360, "avgPrice": 0.832, "strategy": "Time Decay", "edge": "30 hrs left, 20% return"},
@@ -27,9 +27,9 @@
     ]
   },
   "session_7_trades": {
-    "new_trades": 6,
-    "capital_deployed": 1247.44,
-    "potential_profit": 78.56,
+    "new_trades": 11,
+    "capital_deployed": 1946.39,
+    "potential_profit": 86.61,
     "hedges_cleaned": 7,
     "capital_freed": 598.03,
     "prices_synced": 56
