@@ -44,6 +44,15 @@ export function PriceSimulator() {
           // AI learning failure is non-critical
         }
       }
+
+      // Every 60th tick (~5 min), sync real Polymarket prices
+      if (tickCountRef.current % 60 === 0) {
+        try {
+          await fetch("/api/polymarket/sync", { method: "POST" });
+        } catch {
+          // Polymarket sync failure is non-critical
+        }
+      }
     }
 
     // Run first tick immediately

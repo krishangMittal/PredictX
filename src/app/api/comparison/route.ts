@@ -157,6 +157,37 @@ export async function GET() {
       }
     }
 
+    // AI positions with current price & P&L
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const aiPositions = ai?.positions
+      ? await Promise.all(
+          ai.positions.map(async (p) => {
+            const market = await prisma.market.findUnique({
+              where: { id: p.marketId },
+              select: { title: true, category: true, yesPrice: true, noPrice: true },
+            });
+            const currentPrice = p.side === "yes" ? (market?.yesPrice ?? 0) : (market?.noPrice ?? 0);
+            const costBasis = p.shares * p.avgPrice;
+            const currentValue = p.shares * currentPrice;
+            const pnl = currentValue - costBasis;
+            const pnlPct = costBasis > 0 ? (pnl / costBasis) * 100 : 0;
+            return {
+              marketId: p.marketId,
+              marketTitle: market?.title ?? "",
+              category: market?.category ?? "",
+              side: p.side,
+              shares: p.shares,
+              avgPrice: p.avgPrice,
+              currentPrice,
+              costBasis,
+              currentValue,
+              pnl,
+              pnlPct,
+            };
+          })
+        )
+      : [];
+
     return NextResponse.json({
       human: human
         ? {
@@ -199,6 +230,7 @@ export async function GET() {
         active: s.active,
       })),
       combinedTrades: combinedTrades.slice(0, 20),
+      aiPositions,
       positionOverlap,
     });
   } catch (error) {

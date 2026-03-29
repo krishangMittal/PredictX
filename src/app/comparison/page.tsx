@@ -50,11 +50,26 @@ type CombinedTrade = {
   createdAt: string;
 };
 
+type AIPosition = {
+  marketId: string;
+  marketTitle: string;
+  category: string;
+  side: string;
+  shares: number;
+  avgPrice: number;
+  currentPrice: number;
+  costBasis: number;
+  currentValue: number;
+  pnl: number;
+  pnlPct: number;
+};
+
 type ComparisonData = {
   human: UserStats | null;
   ai: UserStats | null;
   strategies: Strategy[];
   combinedTrades: CombinedTrade[];
+  aiPositions: AIPosition[];
   positionOverlap: { marketTitle: string; humanSide: string; aiSide: string; humanShares: number; aiShares: number; opposing: boolean }[];
 };
 
@@ -198,15 +213,15 @@ export default function AITradesPage() {
                 <StatCard label="Open Positions" value={String(ai.positionCount)} color="text-[#a855f7]" />
               </div>
 
-              {/* AI's current positions with reasoning */}
+              {/* AI's current positions with P&L */}
               <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                 <div className="px-5 py-4 border-b border-white/10 flex items-center gap-3">
                   <Target className="w-4 h-4 text-[#a855f7]" />
-                  <h2 className="text-sm font-bold uppercase tracking-widest text-white/50">AI Positions</h2>
-                  <span className="ml-auto text-xs text-white/20">{ai.positionCount} open</span>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-white/50">AI Open Positions</h2>
+                  <span className="ml-auto text-xs text-white/20">{data?.aiPositions?.length ?? 0} open</span>
                 </div>
-                {data?.combinedTrades.filter(t => t.trader === "ai").length === 0 ? (
-                  <div className="p-12 text-center text-white/20 text-sm">AI has not made any trades yet. Next session it will start trading.</div>
+                {!data?.aiPositions?.length ? (
+                  <div className="p-12 text-center text-white/20 text-sm">AI has no open positions yet. Next session it will start trading.</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -215,33 +230,54 @@ export default function AITradesPage() {
                           <th className="text-left text-xs text-white/25 font-medium p-4">Market</th>
                           <th className="text-left text-xs text-white/25 font-medium p-4">Side</th>
                           <th className="text-right text-xs text-white/25 font-medium p-4">Shares</th>
-                          <th className="text-right text-xs text-white/25 font-medium p-4">Entry Price</th>
-                          <th className="text-right text-xs text-white/25 font-medium p-4">Total</th>
-                          <th className="text-right text-xs text-white/25 font-medium p-4">Time</th>
+                          <th className="text-right text-xs text-white/25 font-medium p-4">Entry</th>
+                          <th className="text-right text-xs text-white/25 font-medium p-4">Current</th>
+                          <th className="text-right text-xs text-white/25 font-medium p-4">Value</th>
+                          <th className="text-right text-xs text-white/25 font-medium p-4">P&L</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {data?.combinedTrades.filter(t => t.trader === "ai").map((trade) => (
-                          <tr key={trade.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
+                        {data.aiPositions.map((pos) => (
+                          <tr key={pos.marketId} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
                             <td className="p-4">
-                              <p className="text-sm text-white/80 truncate max-w-[250px]">{trade.marketTitle}</p>
-                              <p className="text-xs text-white/25 capitalize">{trade.category}</p>
+                              <p className="text-sm text-white/80 truncate max-w-[250px]">{pos.marketTitle}</p>
+                              <p className="text-xs text-white/25 capitalize">{pos.category}</p>
                             </td>
                             <td className="p-4">
                               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                                trade.side === "yes" ? "bg-[#00ff88]/15 text-[#00ff88]" : "bg-[#ff4444]/15 text-[#ff4444]"
+                                pos.side === "yes" ? "bg-[#00ff88]/15 text-[#00ff88]" : "bg-[#ff4444]/15 text-[#ff4444]"
                               }`}>
-                                {trade.side.toUpperCase()}
+                                {pos.side.toUpperCase()}
                               </span>
                             </td>
-                            <td className="p-4 text-right font-mono text-sm text-white/60">{trade.shares}</td>
-                            <td className="p-4 text-right font-mono text-sm text-white/60">{formatPrice(trade.price)}</td>
-                            <td className="p-4 text-right font-mono text-sm text-white/80">{formatCurrency(trade.total)}</td>
-                            <td className="p-4 text-right text-xs text-white/25">{timeAgo(new Date(trade.createdAt))}</td>
+                            <td className="p-4 text-right font-mono text-sm text-white/60">{pos.shares}</td>
+                            <td className="p-4 text-right font-mono text-sm text-white/60">{formatPrice(pos.avgPrice)}</td>
+                            <td className="p-4 text-right font-mono text-sm text-white/80">{formatPrice(pos.currentPrice)}</td>
+                            <td className="p-4 text-right font-mono text-sm text-white/80">{formatCurrency(pos.currentValue)}</td>
+                            <td className="p-4 text-right">
+                              <div>
+                                <span className={`font-mono text-sm font-bold ${pos.pnl >= 0 ? "text-[#00ff88]" : "text-[#ff4444]"}`}>
+                                  {pos.pnl >= 0 ? "+" : ""}{formatCurrency(pos.pnl)}
+                                </span>
+                                <span className={`block text-xs font-mono ${pos.pnlPct >= 0 ? "text-[#00ff88]/60" : "text-[#ff4444]/60"}`}>
+                                  {pos.pnlPct >= 0 ? "+" : ""}{pos.pnlPct.toFixed(1)}%
+                                </span>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                    {/* Total P&L row */}
+                    <div className="px-4 py-3 border-t border-white/10 flex justify-between items-center">
+                      <span className="text-xs text-white/40 uppercase tracking-widest">Total Unrealized P&L</span>
+                      <span className={`font-mono text-lg font-bold ${
+                        data.aiPositions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "text-[#00ff88]" : "text-[#ff4444]"
+                      }`}>
+                        {data.aiPositions.reduce((s, p) => s + p.pnl, 0) >= 0 ? "+" : ""}
+                        {formatCurrency(data.aiPositions.reduce((s, p) => s + p.pnl, 0))}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>

@@ -28,10 +28,29 @@ export default async function AIBrainPage() {
     },
   });
 
-  const positionValue = aiUser?.positions.reduce((sum, p) => {
-    const price = p.side === "yes" ? p.market.yesPrice : p.market.noPrice;
-    return sum + price * p.shares;
-  }, 0) ?? 0;
+  const positions = (aiUser?.positions ?? []).map((p) => {
+    const currentPrice = p.side === "yes" ? p.market.yesPrice : p.market.noPrice;
+    const costBasis = p.shares * p.avgPrice;
+    const currentValue = p.shares * currentPrice;
+    const pnl = currentValue - costBasis;
+    const pnlPct = costBasis > 0 ? (pnl / costBasis) * 100 : 0;
+    return {
+      id: p.id,
+      marketTitle: p.market.title,
+      category: p.market.category,
+      side: p.side,
+      shares: p.shares,
+      avgPrice: p.avgPrice,
+      currentPrice,
+      costBasis,
+      currentValue,
+      pnl,
+      pnlPct,
+    };
+  });
+
+  const positionValue = positions.reduce((sum, p) => sum + p.currentValue, 0);
+  const totalPnl = positions.reduce((sum, p) => sum + p.pnl, 0);
 
   return (
     <AIBrainClient
@@ -63,6 +82,8 @@ export default async function AIBrainPage() {
       }))}
       aiBalance={aiUser?.balance ?? 10000}
       aiPortfolioValue={(aiUser?.balance ?? 10000) + positionValue}
+      positions={positions}
+      totalPnl={totalPnl}
     />
   );
 }

@@ -33,15 +33,33 @@ type AITrade = {
   createdAt: string;
 };
 
+type Position = {
+  id: string;
+  marketTitle: string;
+  category: string;
+  side: string;
+  shares: number;
+  avgPrice: number;
+  currentPrice: number;
+  costBasis: number;
+  currentValue: number;
+  pnl: number;
+  pnlPct: number;
+};
+
 export function AIBrainClient({
   strategies,
   recentTrades,
   aiPortfolioValue,
+  positions = [],
+  totalPnl = 0,
 }: {
   strategies: Strategy[];
   recentTrades: AITrade[];
   aiBalance?: number;
   aiPortfolioValue: number;
+  positions?: Position[];
+  totalPnl?: number;
 }) {
   const router = useRouter();
   const [tradingLoading, setTradingLoading] = useState(false);
@@ -184,6 +202,70 @@ export function AIBrainClient({
           </p>
         </div>
       </div>
+
+      {/* Open Positions P&L */}
+      {positions.length > 0 && (
+        <div className="glass rounded-xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <Target className="w-4 h-4 text-accent-blue" />
+              Open Positions ({positions.length})
+            </h2>
+            <div className={`text-sm font-bold font-mono ${totalPnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+              Total P&L: {totalPnl >= 0 ? "+" : ""}{formatCurrency(totalPnl)}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-text-muted border-b border-white/5">
+                  <th className="text-left pb-2 pr-3">Market</th>
+                  <th className="text-center pb-2 px-2">Side</th>
+                  <th className="text-right pb-2 px-2">Shares</th>
+                  <th className="text-right pb-2 px-2">Entry</th>
+                  <th className="text-right pb-2 px-2">Current</th>
+                  <th className="text-right pb-2 px-2">Value</th>
+                  <th className="text-right pb-2 pl-2">P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {positions.sort((a, b) => b.pnl - a.pnl).map((pos) => (
+                  <tr key={pos.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <td className="py-2 pr-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          pos.category === "geopolitics" ? "bg-orange-400" :
+                          pos.category === "sports" ? "bg-green-400" :
+                          pos.category === "crypto" ? "bg-yellow-400" :
+                          pos.category === "politics" ? "bg-blue-400" : "bg-purple-400"
+                        }`} />
+                        <span className="truncate max-w-[200px] sm:max-w-[300px]">{pos.marketTitle}</span>
+                      </div>
+                    </td>
+                    <td className="py-2 px-2 text-center">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        pos.side === "yes" ? "bg-accent-green/15 text-accent-green" : "bg-accent-red/15 text-accent-red"
+                      }`}>
+                        {pos.side}
+                      </span>
+                    </td>
+                    <td className="py-2 px-2 text-right font-mono">{pos.shares}</td>
+                    <td className="py-2 px-2 text-right font-mono">{(pos.avgPrice * 100).toFixed(1)}¢</td>
+                    <td className="py-2 px-2 text-right font-mono">{(pos.currentPrice * 100).toFixed(1)}¢</td>
+                    <td className="py-2 px-2 text-right font-mono">{formatCurrency(pos.currentValue)}</td>
+                    <td className={`py-2 pl-2 text-right font-mono font-bold ${pos.pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                      {pos.pnl >= 0 ? "+" : ""}{formatCurrency(pos.pnl)}
+                      <span className="text-text-muted font-normal ml-1">
+                        ({pos.pnlPct >= 0 ? "+" : ""}{pos.pnlPct.toFixed(1)}%)
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Strategies */}
