@@ -68,11 +68,13 @@ export function MarketDetailClient({
   userBalance,
   userId,
   position,
+  aiPosition,
 }: {
   market: Market;
   userBalance: number;
   userId: string;
   position: Position;
+  aiPosition?: Position;
 }) {
   const router = useRouter();
   const [side, setSide] = useState<"yes" | "no">("yes");
@@ -471,6 +473,46 @@ export function MarketDetailClient({
                   {(() => {
                     const currentPrice = position.side === "yes" ? yesPrice : noPrice;
                     const pnl = (currentPrice - position.avgPrice) * position.shares;
+                    return (
+                      <span className={`font-mono font-semibold ${pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
+                        {pnl >= 0 ? "+" : ""}{formatCurrency(pnl)}
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI Position */}
+          {aiPosition && (
+            <div className="glass rounded-xl p-5 border-l-2 border-purple-500/30">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-[10px]">🤖</span>
+                </div>
+                <h2 className="text-sm font-semibold">AI Position</h2>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Side</span>
+                  <span className={aiPosition.side === "yes" ? "text-accent-green" : "text-accent-red"}>
+                    {aiPosition.side.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Shares</span>
+                  <span className="font-mono">{aiPosition.shares}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Entry</span>
+                  <span className="font-mono">{formatPrice(aiPosition.avgPrice)}</span>
+                </div>
+                <div className="flex justify-between border-t border-border-dim pt-2">
+                  <span className="text-text-muted">AI P&L</span>
+                  {(() => {
+                    const cp = aiPosition.side === "yes" ? yesPrice : noPrice;
+                    const pnl = (cp - aiPosition.avgPrice) * aiPosition.shares;
                     return (
                       <span className={`font-mono font-semibold ${pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
                         {pnl >= 0 ? "+" : ""}{formatCurrency(pnl)}

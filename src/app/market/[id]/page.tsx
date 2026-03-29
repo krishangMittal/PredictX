@@ -32,12 +32,21 @@ export default async function MarketPage({ params }: { params: { id: string } })
       })
     : null;
 
+  // Get AI position on this market
+  const aiUser = await prisma.user.findUnique({ where: { username: "ai-trader" } });
+  const aiPosition = aiUser
+    ? await prisma.position.findFirst({
+        where: { userId: aiUser.id, marketId: market.id },
+      })
+    : null;
+
   return (
     <MarketDetailClient
       market={JSON.parse(JSON.stringify(market))}
       userBalance={user?.balance ?? 10000}
       userId={user?.id ?? ""}
       position={position ? JSON.parse(JSON.stringify(position)) : null}
+      aiPosition={aiPosition ? JSON.parse(JSON.stringify(aiPosition)) : null}
     />
   );
 }
