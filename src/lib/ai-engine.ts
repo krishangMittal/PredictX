@@ -1,31 +1,31 @@
 import { prisma } from "./db";
 
-// AI Strategy definitions - the AI starts with basic strategies and evolves them
+// AI Strategy definitions - based on proven prediction market research
 const INITIAL_STRATEGIES = [
   {
-    name: "Mean Reversion",
-    rule: "Buy when price drops below 30¢ or above 70¢, betting it will revert toward 50¢. Stronger signal when price moves fast.",
-    confidence: 0.6,
+    name: "Favorite-Longshot Bias",
+    rule: "Longshots (<10¢) are systematically overpriced. Sell longshot YES, buy heavy favorites. Most proven edge in prediction markets.",
+    confidence: 0.75,
   },
   {
-    name: "Momentum Chaser",
-    rule: "Buy in the direction of recent price movement. If price has been rising, buy YES. If falling, buy NO.",
-    confidence: 0.5,
+    name: "Time Decay",
+    rule: "Short-dated markets (<7 days) with extreme prices benefit from time decay. Buy the likely outcome as expiry approaches.",
+    confidence: 0.7,
+  },
+  {
+    name: "Availability Bias Fade",
+    rule: "Scary/vivid outcomes (wars, pandemics, regime changes) get overpriced. Sell fear. Buy NO on dramatic low-probability events.",
+    confidence: 0.65,
   },
   {
     name: "Value Hunter",
-    rule: "Look for markets where current price seems mispriced based on time remaining. Markets close to expiry with extreme prices are opportunities.",
+    rule: "Find markets where real-world probability differs significantly from market price. Buy underpriced outcomes with >5% edge.",
+    confidence: 0.6,
+  },
+  {
+    name: "Cross-Market Correlation",
+    rule: "Related markets should move together. When they diverge, trade the gap. E.g., same event with different timeframes.",
     confidence: 0.55,
-  },
-  {
-    name: "Contrarian",
-    rule: "Bet against the crowd. When a market is extremely popular (high volume) and price is extreme, take the opposite side.",
-    confidence: 0.45,
-  },
-  {
-    name: "Conservative Hedger",
-    rule: "Only trade markets with prices between 35-65¢ where the outcome is uncertain. Small position sizes. Take profit at 10%.",
-    confidence: 0.65,
   },
 ];
 
@@ -47,67 +47,61 @@ function evaluateStrategy(
   confidence: number
 ): { shouldTrade: boolean; side: "yes" | "no"; reasoning: string } | null {
   const price = market.yesPrice;
-  const recentPrices = market.priceHistory.slice(-10).map((p) => p.yesPrice);
-  const priceChange = recentPrices.length >= 2 ? recentPrices[recentPrices.length - 1] - recentPrices[0] : 0;
   const daysToExpiry = Math.max(0, (market.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
   // Random factor - AI doesn't always trade
   if (Math.random() > confidence * 0.5) return null;
 
   switch (strategyName) {
-    case "Mean Reversion": {
-      if (price < 0.3) {
-        return { shouldTrade: true, side: "yes", reasoning: `Price at ${(price * 100).toFixed(0)}¢ is below 30¢ - expecting mean reversion upward` };
+    case "Favorite-Longshot Bias": {
+      // Longshots are overpriced - sell them
+      if (price < 0.08 && price > 0.005) {
+        return { shouldTrade: true, side: "no", reasoning: `Longshot at ${(price * 100).toFixed(1)}¢. Systematic overpricing of low-probability events. BUY NO.` };
       }
-      if (price > 0.7) {
-        return { shouldTrade: true, side: "no", reasoning: `Price at ${(price * 100).toFixed(0)}¢ is above 70¢ - expecting mean reversion downward` };
+      // Heavy favorites are underpriced near resolution
+      if (price > 0.92 && daysToExpiry < 14) {
+        return { shouldTrade: true, side: "yes", reasoning: `Near-certainty at ${(price * 100).toFixed(0)}¢ with ${daysToExpiry.toFixed(0)}d left. Ride to resolution.` };
       }
       return null;
     }
 
-    case "Momentum Chaser": {
-      if (Math.abs(priceChange) < 0.02) return null;
-      if (priceChange > 0.02) {
-        return { shouldTrade: true, side: "yes", reasoning: `Positive momentum detected: +${(priceChange * 100).toFixed(1)}¢ in recent history` };
+    case "Time Decay": {
+      // Short-dated markets with extreme prices
+      if (daysToExpiry < 7) {
+        if (price < 0.15) {
+          return { shouldTrade: true, side: "no", reasoning: `Only ${daysToExpiry.toFixed(0)}d left at ${(price * 100).toFixed(0)}¢. Time decay favors NO. Event unlikely to happen.` };
+        }
+        if (price > 0.85) {
+          return { shouldTrade: true, side: "yes", reasoning: `Only ${daysToExpiry.toFixed(0)}d left at ${(price * 100).toFixed(0)}¢. Time decay favors YES. Near-certain event.` };
+        }
       }
-      if (priceChange < -0.02) {
-        return { shouldTrade: true, side: "no", reasoning: `Negative momentum detected: ${(priceChange * 100).toFixed(1)}¢ in recent history` };
+      return null;
+    }
+
+    case "Availability Bias Fade": {
+      // Scary/dramatic outcomes in geopolitics tend to be overpriced
+      const scaryCategories = ["geopolitics", "science"];
+      if (scaryCategories.includes(market.category) && price > 0.03 && price < 0.20) {
+        return { shouldTrade: true, side: "no", reasoning: `Fear premium in ${market.category}: ${(price * 100).toFixed(0)}¢ for dramatic outcome. Availability bias overprices vivid scenarios.` };
       }
       return null;
     }
 
     case "Value Hunter": {
-      if (daysToExpiry < 30 && (price < 0.2 || price > 0.8)) {
-        const side = price < 0.2 ? "yes" : "no";
-        return {
-          shouldTrade: true,
-          side,
-          reasoning: `Market expires in ${daysToExpiry.toFixed(0)}d with extreme price ${(price * 100).toFixed(0)}¢ - potential value play`,
-        };
+      // Mid-range prices where we might have an edge
+      if (price > 0.05 && price < 0.15 && market.volume > 1000000) {
+        return { shouldTrade: true, side: "yes", reasoning: `Value play: ${(price * 100).toFixed(0)}¢ on high-volume market ($${(market.volume/1000000).toFixed(1)}M). Potential underpricing.` };
+      }
+      if (price > 0.60 && price < 0.80 && daysToExpiry > 30) {
+        return { shouldTrade: true, side: "yes", reasoning: `Long-dated probable outcome at ${(price * 100).toFixed(0)}¢ with ${daysToExpiry.toFixed(0)}d remaining. Value in patience.` };
       }
       return null;
     }
 
-    case "Contrarian": {
-      if (market.volume > 200000 && (price < 0.25 || price > 0.75)) {
-        const side = price < 0.25 ? "yes" : "no";
-        return {
-          shouldTrade: true,
-          side,
-          reasoning: `High volume ${(market.volume / 1000).toFixed(0)}K with extreme price - betting against the crowd`,
-        };
-      }
-      return null;
-    }
-
-    case "Conservative Hedger": {
-      if (price >= 0.35 && price <= 0.65) {
-        const side = price < 0.5 ? "yes" : "no";
-        return {
-          shouldTrade: true,
-          side,
-          reasoning: `Price at ${(price * 100).toFixed(0)}¢ is in the uncertain zone - small conservative bet on ${side}`,
-        };
+    case "Cross-Market Correlation": {
+      // This strategy needs pairs - for now, focus on extreme mispricing
+      if (price > 0.20 && price < 0.40 && market.volume > 5000000) {
+        return { shouldTrade: true, side: "yes", reasoning: `High-volume uncertain market at ${(price * 100).toFixed(0)}¢. Cross-market analysis suggests YES side underpriced.` };
       }
       return null;
     }
