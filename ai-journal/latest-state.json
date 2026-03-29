@@ -36,5 +36,5 @@
     "Small position sizes (~$20-36) keep risk low while building the book",
     "Need to run simulation to realize P&L on positions"
   ],
-  "next_session_plan": "Run simulation to update prices. Check P&L on all 9 positions. Take profits on winners (>10% gain). Find new mispricings. Build AI signals feed. Add Copy AI Trade button."
+  "next_session_plan": "URGENT: Rip out all fake/simulated markets. Integrate Polymarket API to fetch REAL markets, real prices, real odds. Replace the simulation engine with real data sync. Then: implement the 14 Polymarket strategies from the spec, make paper trades on real markets with full reasoning, Kelly criterion sizing."
 }

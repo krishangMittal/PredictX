@@ -20,7 +20,7 @@ const navItems = [
   { href: "/history", label: "History", icon: History },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/ai-brain", label: "AI Brain", icon: Brain },
-  { href: "/comparison", label: "AI vs Human", icon: Swords },
+  { href: "/comparison", label: "AI Trades", icon: Swords },
 ];
 
 export function Sidebar() {

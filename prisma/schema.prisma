@@ -19,24 +19,34 @@ model User {
 }
 
 model Market {
-  id           String         @id @default(cuid())
-  title        String
-  description  String
-  category     String
-  resolution   String?
-  status       String         @default("active")
-  yesPrice     Float          @default(0.5)
-  noPrice      Float          @default(0.5)
-  volume       Float          @default(0)
-  liquidity    Float          @default(100000)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  expiresAt    DateTime
-  resolvedAt   DateTime?
-  limitOrders  LimitOrder[]
-  positions    Position[]
-  priceHistory PriceHistory[]
-  trades       Trade[]
+  id              String         @id @default(cuid())
+  polymarketId    String?        @unique
+  polymarketSlug  String?
+  title           String
+  description     String
+  category        String
+  resolution      String?
+  status          String         @default("active")
+  yesPrice        Float          @default(0.5)
+  noPrice         Float          @default(0.5)
+  volume          Float          @default(0)
+  liquidity       Float          @default(100000)
+  volume24hr      Float          @default(0)
+  spread          Float          @default(0)
+  bestBid         Float?
+  bestAsk         Float?
+  lastTradePrice  Float?
+  oneDayChange    Float?
+  oneWeekChange   Float?
+  outcomes        String         @default("[\"Yes\",\"No\"]")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  expiresAt       DateTime
+  resolvedAt      DateTime?
+  limitOrders     LimitOrder[]
+  positions       Position[]
+  priceHistory    PriceHistory[]
+  trades          Trade[]
 }
 
 model Position {
