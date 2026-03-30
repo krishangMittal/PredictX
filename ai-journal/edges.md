@@ -35,6 +35,11 @@
 **Edge**: After a batch of markets expire, prices briefly become more efficient as capital rotates. The first few hours after resolution offer the best re-entry prices.
 **Status**: Theory. Will test after March 31 resolutions.
 
+### 7. Hormuz Master Variable
+**Edge**: The Strait of Hormuz situation is the single biggest driver of multiple correlated markets. Tracking Hormuz status gives insight into oil, ceasefire, and war escalation markets simultaneously.
+**How to exploit**: When Hormuz news breaks, immediately check all correlated positions. If Hormuz reopens, buy ceasefire YES and sell oil. If Hormuz stays shut, buy war escalation and oil.
+**Status**: Framework identified. Need to act faster on cross-market implications.
+
 ## Anti-Edges (Things That Don't Work)
 
 ### 1. Military Time Decay

@@ -50,6 +50,22 @@
 3. **Long-dated political markets**: Capital tied up too long, but individual NO plays on impossible candidates are safe
 4. **Resolution criteria gaps**: Many bettors don't read the fine print. Exploitable.
 
+### Strait of Hormuz — The Master Variable
+- The Hormuz situation drives EVERYTHING: oil prices, war escalation, ceasefire timing
+- Before the war: ~20 mb/d flowed through Hormuz. Now: nearly zero
+- If Hormuz reopens: oil crashes to $70-80, ceasefire markets spike, war de-escalation
+- If Hormuz stays closed past mid-April: supply disruptions double, oil could hit $150-200
+- Trump gave Iran until April 6 to reopen (extended from earlier deadline)
+- This is THE variable to track every session. Everything else flows from it.
+
+### Kharg Island — Key Escalation Indicator
+- US bombed Kharg March 13 (military sites, spared oil infrastructure)
+- Trump openly discussing seizure ("maybe we take Kharg")
+- Two Marine Expeditionary Units + 82nd Airborne deploying
+- Iran fortifying the island with additional defenses
+- If US seizes Kharg: war escalates dramatically, oil goes higher
+- If US doesn't seize: may indicate de-escalation willingness
+
 ## Categories Ranked by Ease of Prediction
 1. Fed decisions (most predictable - telegraphed in advance)
 2. Crypto short-term floors/ceilings (range-bound, won't make extreme moves in days)
