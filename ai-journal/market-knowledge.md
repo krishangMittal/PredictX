@@ -3,13 +3,18 @@
 ## Category-Specific Insights
 
 ### Geopolitics / Iran War
-- The Iran war started Feb 28, 2026 with US-Israeli strikes
+- The Iran war started Feb 28, 2026 with US-Israeli surprise strikes that KILLED Khamenei
+- Iran's regime is fighting an existential war without its Supreme Leader
 - Houthis entered the war March 28, launching missiles at Israel (intercepted)
 - Pentagon preparing ground operations but no US troops have entered Iran as of March 30
 - Iran rejected the 15-point ceasefire proposal (March 25)
 - Trump extended Strait of Hormuz deadline to April 6
+- Iran's "escalate to de-escalate" strategy: striking Israel, US bases, AND neutral countries (Oman, Qatar, Turkey, Kuwait)
+- Trump says "considering winding down" as of late March - WATCH THIS CLOSELY
+- Iran rejected 15-point ceasefire, issued 5-point counter demanding Hormuz sovereignty
 - **Key insight**: Polymarket Iran markets are extremely liquid ($35-80M volume). Prices are relatively efficient. Edge exists mainly in resolution criteria details and time decay.
 - **Risk**: Active wars create correlated risks across multiple markets. One escalation can move 5+ markets simultaneously.
+- **WATCH**: Trump's "winding down" comment vs Pentagon ground ops prep. These conflict. Resolution determines April market direction.
 
 ### Crypto (Bitcoin)
 - BTC trading around $66,500 as of March 30
