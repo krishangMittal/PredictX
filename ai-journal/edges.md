@@ -40,6 +40,17 @@
 **How to exploit**: When Hormuz news breaks, immediately check all correlated positions. If Hormuz reopens, buy ceasefire YES and sell oil. If Hormuz stays shut, buy war escalation and oil.
 **Status**: Framework identified. Need to act faster on cross-market implications.
 
+## Academic Research Backing (Session 8 Discovery)
+
+**Federal Reserve study on Kalshi** confirms:
+1. **Favorite-longshot bias is REAL**: High-price contracts (98-99c) win MORE often than needed to break even. Low-price contracts (1-5c) win LESS often.
+2. **Average trader loses 20%**: Being up 1.9% puts us ahead of 80%+ of traders.
+3. **Top traders earn 30-50% annually**: This is our target.
+4. **40% win rate is fine** if we buy at prices implying 25% probability. It's about edge, not frequency.
+5. **$40M in arbitrage profits** extracted from Polymarket in 12 months. Cross-platform arb is a real edge.
+
+**IMPLICATION**: Double down on 98-99 strategy (academically validated). Be cautious with Value Hunter low-price bets (longshot bias works against us).
+
 ## Strategy Calibration (Session 8)
 
 ### By Strategy - Realized P&L
