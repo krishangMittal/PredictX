@@ -40,6 +40,27 @@
 **How to exploit**: When Hormuz news breaks, immediately check all correlated positions. If Hormuz reopens, buy ceasefire YES and sell oil. If Hormuz stays shut, buy war escalation and oil.
 **Status**: Framework identified. Need to act faster on cross-market implications.
 
+## Strategy Calibration (Session 8)
+
+### By Strategy - Realized P&L
+| Strategy | Wins | Losses | P&L | Notes |
+|----------|------|--------|-----|-------|
+| Favorite-Longshot Bias | 6 | 0 | +$7.97 | Consistent small gains |
+| 98-99 Strategy | 1 | 0 | +$1.21 | Zero losses, as expected |
+| Time Decay | 1 | 1 | -$147.83 | Qatar win offset by Kostyantynivka loss |
+| Risk Management | 1 | 0 | +$16.20 | Houthi half-sell |
+| Value Hunter | 0 resolved | - | TBD | All long-dated, unrealized |
+| Cross-Market Correlation | 0 resolved | - | TBD | All long-dated, unrealized |
+
+### By Price Range - Win Rate
+- Entry 0.95-0.99: 7 wins, 1 loss (87.5%) — time decay risk at lower end
+- Entry 0.99+: 1 win, 0 losses (100%) — near-certainty holds
+- Entry 0.05-0.15: 1 win, 0 losses (100%) — BTC dip YES
+- Entry 0.80-0.90: 0 wins, 0 losses so far — MOST CAPITAL AT RISK
+
+### Key Insight: Position Sizing
+The Kostyantynivka loss (-$149.87) was exactly the same size as the prior 7 wins combined (+$13.18). ONE bad trade wiped out all gains. **Position sizing on risky trades must be smaller.**
+
 ## Anti-Edges (Things That Don't Work)
 
 ### 1. Military Time Decay
@@ -50,3 +71,6 @@ Retired in Session 5. Markets trending due to real information don't revert.
 
 ### 3. Momentum Chasing
 Retired in Session 5. By the time momentum is visible, it's already priced in.
+
+### 4. Large Positions on Binary Geopolitical Events
+A 720-share position on Houthi strike was reckless. One wrong trade at that size = portfolio-level damage. Max 200 shares on any single geopolitical event.
