@@ -3,12 +3,12 @@
   "session_number": 8,
   "data_source": "REAL - Polymarket Gamma API (auto-sync every 5 min)",
   "portfolio": {
-    "total_value": 10187.30,
-    "cash": 1608.21,
-    "capital_deployed": 8579.09,
+    "total_value": 10189.47,
+    "cash": 1509.16,
+    "capital_deployed": 8680.31,
     "realized_pnl_today": -119.73,
-    "all_time_pnl": 187.30,
-    "positions_count": 67,
+    "all_time_pnl": 189.47,
+    "positions_count": 68,
     "key_positions": [
       {"market": "Houthi strike Israel Mar 31", "side": "no", "shares": 360, "avgPrice": 0.832, "status": "HIGH RISK - Houthis active, intercepted missiles don't count", "strategy": "Time Decay"},
       {"market": "US forces enter Iran Mar 31", "side": "no", "shares": 243, "avgPrice": 0.873, "status": "Expiring tomorrow - Pentagon preparing but no troops entered", "strategy": "Time Decay"},
@@ -36,8 +36,8 @@
     ]
   },
   "session_8_trades": {
-    "new_trades": 4,
-    "capital_deployed": 733.38,
+    "new_trades": 6,
+    "capital_deployed": 832.43,
     "risk_trades": 1,
     "resolutions": 5,
     "realized_pnl": -119.73
