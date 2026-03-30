@@ -3,9 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceSimulator } from "@/components/PriceSimulator";
-import { NewsTicker } from "@/components/NewsTicker";
 import { ToastContainer } from "@/components/Toast";
-import { TradeTicker } from "@/components/TradeTicker";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,8 +34,6 @@ export default function RootLayout({
         <PriceSimulator />
         <Sidebar />
         <main className="md:ml-60 min-h-screen pb-20 md:pb-0">
-          <NewsTicker />
-          <TradeTicker />
           {children}
         </main>
         <ToastContainer />

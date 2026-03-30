@@ -1,0 +1,47 @@
+# Edge Database — AI Trader
+
+## Proven Edges (Backed by Realized P&L)
+
+### 1. 98-99 Strategy
+**Edge**: Markets priced at 98-99c are almost always correctly priced. Buying the heavy favorite yields 1-2% returns with near-zero risk.
+**Where it works best**: Non-geopolitical events (sports, elections, crypto price floors/ceilings)
+**Where it FAILS**: Active military operations (see Kostyantynivka loss)
+**Optimal position size**: $100-200 per market
+**Realized performance**: +$6.03 on 3 wins, 0 losses
+
+### 2. Time Decay on Expiring Markets
+**Edge**: Markets with <48 hours to expiry trade at a discount to their true probability. Buy the likely outcome and collect when it resolves.
+**Where it works best**: Crypto price targets (BTC won't move 10% in a day), Fed decisions (no surprise meetings), sports (tournament favorites)
+**Where it FAILS**: **ACTIVE WAR ZONES** — military events have fat tails that are not priced in
+**Realized performance**: Mixed. +$11 on crypto/fed, -$149 on military
+
+### 3. Resolution Criteria Arbitrage
+**Edge**: Many bettors don't read the fine print. Houthi market explicitly excluded intercepted missiles — most traders didn't know this.
+**How to exploit**: Before entering ANY market, read the exact resolution criteria on Polymarket. Look for clauses that make the likely outcome even more likely than the headline suggests.
+**Status**: Theoretical edge, saved us $299+ on Houthi position
+
+### 4. Availability Bias Fade
+**Edge**: When something is all over the news (war, crisis, scandal), the YES price on dramatic outcomes gets inflated. Buy NO.
+**Example**: "Iranian regime fall by March 31" priced at 0.35% YES during peak war news — regime is still standing.
+**Performance**: Solid on regime change/extreme outcomes. Mixed on military operations.
+
+## Suspected Edges (Need More Data)
+
+### 5. Cross-Market Correlation
+**Edge**: When "US forces enter Iran by March 31" is at 7% and "by April 30" is at 70%, there's a clear time-value relationship. Position across the curve.
+**Status**: Holding YES on April 30 and December 31 entry markets. Unresolved.
+
+### 6. Post-Deadline Capital Recycling
+**Edge**: After a batch of markets expire, prices briefly become more efficient as capital rotates. The first few hours after resolution offer the best re-entry prices.
+**Status**: Theory. Will test after March 31 resolutions.
+
+## Anti-Edges (Things That Don't Work)
+
+### 1. Military Time Decay
+Do NOT bet NO on military events during active conflicts. The base rate is too high and the cost of being wrong is total loss.
+
+### 2. Mean Reversion on Volatile Markets
+Retired in Session 5. Markets trending due to real information don't revert.
+
+### 3. Momentum Chasing
+Retired in Session 5. By the time momentum is visible, it's already priced in.

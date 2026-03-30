@@ -159,10 +159,6 @@ export function Sidebar() {
           <div className="glass rounded-lg p-4">
             <p className="text-xs text-text-muted mb-1">Paper Balance</p>
             <p className="text-xl font-bold font-mono text-accent-green">{formattedBalance}</p>
-            <div className="mt-2 flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-accent-blue animate-pulse" />
-              <span className="text-xs text-text-muted">Polymarket Live</span>
-            </div>
           </div>
           {aiPnl !== null && (
             <Link href="/ai-brain" className="block glass rounded-lg p-3 hover:border-purple-500/30 transition-all">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice, formatCompactNumber, daysUntil } from "@/lib/utils";
 import { SparklineChart } from "@/components/SparklineChart";
 import { usePriceStore } from "@/lib/store";
-import { Search, TrendingUp, TrendingDown, Clock, BarChart3, Brain, ArrowUpDown, AlertTriangle } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Clock, ArrowUpDown, AlertTriangle } from "lucide-react";
 
 type Market = {
   id: string;
@@ -42,69 +42,12 @@ const categoryColors: Record<string, string> = {
   other: "bg-gray-500/20 text-gray-400",
 };
 
-type Signal = {
-  marketId: string;
-  signal: "strong_buy" | "buy" | "hold" | "sell" | "strong_sell";
-  side: "yes" | "no";
-  confidence: number;
-  reasoning: string;
-  aiHasPosition: boolean;
-};
-
-const signalColors: Record<string, string> = {
-  strong_buy: "bg-green-500/20 text-green-400 border-green-500/30",
-  buy: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  hold: "bg-gray-500/15 text-gray-400 border-gray-500/20",
-  sell: "bg-orange-500/15 text-orange-400 border-orange-500/20",
-  strong_sell: "bg-red-500/20 text-red-400 border-red-500/30",
-};
-
-const signalLabels: Record<string, string> = {
-  strong_buy: "STRONG BUY",
-  buy: "BUY",
-  hold: "HOLD",
-  sell: "SELL",
-  strong_sell: "STRONG SELL",
-};
-
 type SortOption = "volume" | "expiry" | "change" | "price";
 
 export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState<SortOption>("volume");
-  const [signals, setSignals] = useState<Record<string, Signal>>({});
-  const [portfolioStats, setPortfolioStats] = useState<{
-    value: number; pnl: number; positions: number; trades: number;
-  } | null>(null);
-
-  useEffect(() => {
-    fetch("/api/ai/signals")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.signals) {
-          const map: Record<string, Signal> = {};
-          for (const s of data.signals) map[s.marketId] = s;
-          setSignals(map);
-        }
-      })
-      .catch(() => {});
-
-    fetch("/api/comparison")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ai) {
-          setPortfolioStats({
-            value: data.ai.portfolioValue ?? 10000,
-            pnl: data.ai.pnl ?? 0,
-            positions: data.ai.positionCount ?? 0,
-            trades: data.ai.tradeCount ?? 0,
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   const filtered = useMemo(() => {
     const results = initialMarkets.filter((m) => {
       const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase());
@@ -158,31 +101,7 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
           <h1 className="text-3xl font-bold">
             Prediction <span className="text-accent-blue">Markets</span>
           </h1>
-          {portfolioStats && (
-            <div className="hidden sm:flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
-                <span className="text-text-muted">AI Value</span>
-                <span className="font-mono font-bold text-accent-blue">
-                  ${portfolioStats.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
-                <span className="text-text-muted">P&L</span>
-                <span className={`font-mono font-bold ${portfolioStats.pnl >= 0 ? "text-accent-green" : "text-accent-red"}`}>
-                  {portfolioStats.pnl >= 0 ? "+" : ""}${portfolioStats.pnl.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
-                <span className="text-text-muted">Positions</span>
-                <span className="font-mono font-bold text-purple-400">{portfolioStats.positions}</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-3 py-1.5 border border-white/10">
-                <span className="text-text-muted">Markets</span>
-                <span className="font-mono font-bold text-white/60">{initialMarkets.length}</span>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
         <p className="text-text-muted text-sm">
           Trade on real-world outcomes powered by Polymarket. AI places paper trades automatically.
         </p>
@@ -303,18 +222,10 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
         ))}
       </div>
 
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={<BarChart3 className="w-4 h-4" />} label="Active Markets" value={initialMarkets.length.toString()} />
-        <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Total Volume" value={`$${formatCompactNumber(initialMarkets.reduce((a, m) => a + m.volume, 0))}`} />
-        <StatCard icon={<AlertTriangle className="w-4 h-4 text-yellow-400" />} label="Expiring Soon" value={`${expiringSoon.length} markets`} />
-        <StatCard icon={<Clock className="w-4 h-4" />} label="Showing" value={`${filtered.length} markets`} />
-      </div>
-
       {/* Market Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((market) => (
-          <MarketCard key={market.id} market={market} signal={signals[market.id]} />
+          <MarketCard key={market.id} market={market} />
         ))}
       </div>
 
@@ -328,19 +239,7 @@ export function MarketsClient({ initialMarkets }: { initialMarkets: Market[] }) 
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="glass rounded-lg p-3 flex items-center gap-3">
-      <div className="text-accent-blue">{icon}</div>
-      <div>
-        <p className="text-xs text-text-muted">{label}</p>
-        <p className="text-sm font-semibold font-mono">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
+function MarketCard({ market }: { market: Market }) {
   const livePrice = usePriceStore((s) => s.prices[market.id]);
   const prevPriceRef = useRef(market.yesPrice);
   const [flashClass, setFlashClass] = useState("");
@@ -404,15 +303,6 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
           <SparklineChart data={pricePoints} isUp={isUp} />
         </div>
 
-        {/* AI Signal Badge */}
-        {signal && signal.signal !== "hold" && (
-          <div className={`flex items-center gap-1.5 mb-3 px-2 py-1 rounded-md border text-[10px] font-bold w-fit ${signalColors[signal.signal]}`}>
-            <Brain className="w-3 h-3" />
-            {signalLabels[signal.signal]} {signal.side.toUpperCase()}
-            {signal.aiHasPosition && <span className="opacity-60">• AI in</span>}
-          </div>
-        )}
-
         {/* Price Row */}
         <div className="flex items-end justify-between">
           <div>
@@ -454,13 +344,6 @@ function MarketCard({ market, signal }: { market: Market; signal?: Signal }) {
           />
         </div>
 
-        {/* Polymarket badge */}
-        {market.polymarketId && (
-          <div className="mt-2 flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent-blue"></div>
-            <span className="text-[9px] text-text-muted uppercase tracking-wider">Polymarket Live</span>
-          </div>
-        )}
       </div>
     </Link>
   );
