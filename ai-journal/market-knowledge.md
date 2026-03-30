@@ -12,6 +12,8 @@
 - Iran's "escalate to de-escalate" strategy: striking Israel, US bases, AND neutral countries (Oman, Qatar, Turkey, Kuwait)
 - Trump says "considering winding down" as of late March - WATCH THIS CLOSELY
 - Iran rejected 15-point ceasefire, issued 5-point counter demanding Hormuz sovereignty
+- **UPDATE March 30**: Trump now says Iran "agreed to most of" 15-point demands. Pakistan hosting indirect talks "in coming days." De-escalation accelerating?
+- Houthis launched 2 attacks on Israel (March 28-29), both intercepted. Promised "continued operations"
 - **Key insight**: Polymarket Iran markets are extremely liquid ($35-80M volume). Prices are relatively efficient. Edge exists mainly in resolution criteria details and time decay.
 - **Risk**: Active wars create correlated risks across multiple markets. One escalation can move 5+ markets simultaneously.
 - **WATCH**: Trump's "winding down" comment vs Pentagon ground ops prep. These conflict. Resolution determines April market direction.
@@ -57,10 +59,12 @@
 
 ### Strait of Hormuz — The Master Variable
 - The Hormuz situation drives EVERYTHING: oil prices, war escalation, ceasefire timing
-- Before the war: ~20 mb/d flowed through Hormuz. Now: nearly zero
-- If Hormuz reopens: oil crashes to $70-80, ceasefire markets spike, war de-escalation
-- If Hormuz stays closed past mid-April: supply disruptions double, oil could hit $150-200
+- Before the war: ~20 mb/d flowed through Hormuz. Now: nearly zero for Western nations
+- **UPDATE March 30**: Iran PARTIALLY reopened Hormuz to 5 nations (China, Russia, India, Iraq, Pakistan) + Malaysia, Thailand. Also allowing humanitarian/fertilizer shipments (UN request). This is a DE-ESCALATION SIGNAL.
+- If Hormuz reopens fully: oil crashes to $70-80, ceasefire markets spike, war de-escalation
+- If Hormuz stays closed to West past April 6: US strikes Iranian power grid
 - Trump gave Iran until April 6 to reopen (extended from earlier deadline)
+- **Key insight**: Partial reopening suggests Iran is negotiating, not maximally escalating. Ceasefire more likely than market implies?
 - This is THE variable to track every session. Everything else flows from it.
 
 ### Kharg Island — Key Escalation Indicator
